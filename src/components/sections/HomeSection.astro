@@ -1,0 +1,17 @@
+---
+import AnimatedBg from "../subcomponentes/AnimatedBg.astro";
+import HomeSlider from "../subcomponentes/HomeSlider.astro";
+import Starshine from "../subcomponentes/Starshine.astro";
+const { translations } = Astro.props;
+---
+
+<!--Home-->
+<!--Section-->
+<section class="relative w-screen h-screen m-0 p-0 overflow-hidden" data-anchor="Home" data-brightness="dark" >
+    <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 5;" />
+    <div class="fixed top-0 left-0 max-w-screen max-h-screen w-screen h-screen  pointer-events-none " style="z-index: 5;">
+      <Starshine />
+    </div> 
+    
+    <HomeSlider translations={translations} class="w-screen h-screen z-10" style="z-index: 10" />
+</section>

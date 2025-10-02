@@ -1,0 +1,295 @@
+---
+import AnimatedBg from "../subcomponentes/AnimatedBg.astro";
+import { getLangFromUrl } from '../../i18n/utils';
+import ScrollIndicator from "../subcomponentes/Scroll-indicator.astro";
+
+const lang = getLangFromUrl(Astro.url);
+
+// Importar traducciones de about
+let aboutTranslations;
+try {
+  aboutTranslations = await import(`../../i18n/${lang}/about.json`);
+} catch (error) {
+  // Fallback a español si no existe el idioma
+  aboutTranslations = await import('../../i18n/es/about.json');
+}
+
+const about = aboutTranslations.default;
+
+// Recoger todas las imágenes (image + image2) para rotación aleatoria
+const allImages = [];
+about.scrollytelling.steps.forEach(step => {
+  if (step.image) allImages.push(step.image);
+  if (step.image2) allImages.push(step.image2);
+});
+---
+
+<section id="about" class="relative w-screen h-[100dvh] overflow-hidden">
+  <!-- Fondo animado -->
+  <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 5;" />
+  
+  <!-- Contenedor de imágenes de fondo rotativas -->
+  <div class="absolute inset-0 w-full h-full z-10">
+    {allImages.map((imageUrl, index) => (
+      <div 
+        class="bg-image absolute inset-0 w-full h-full opacity-0 transition-opacity duration-1000 ease-in-out"
+        data-bg-index={index}
+        style={`background-image: url('${imageUrl}'); background-size: cover; background-position: center;`}
+      >
+        <div class="absolute inset-0 bg-black/40"></div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Slider de textos -->
+  <div class="relative z-20 w-full h-full ">
+    <!-- Contenedor responsive para textos -->
+    <div class="absolute inset-0 flex items-center justify-center md:justify-end md:pr-0 ">
+      <div class="w-full max-w-7xl mx-auto px-6 md:w-1/2 md:max-w-none md:mx-0 md:px-0 md:mr-[5%] ">
+        <!-- Slides de texto -->
+        {about.scrollytelling.steps.map((step, index) => (
+          <div 
+            class="text-slide absolute inset-0 flex items-center justify-center xs:items-start xs:justify-start opacity-0 transition-opacity duration-1000 ease-in-out " 
+            data-slide-index={index}
+          >
+            <div class="w-[90%] max-w-7xl mx-auto md:w-fit lg:w-1/2   md:mx-10 xs:my-30 md:my-50 "> 
+
+              <div class=" h-auto max-w-[100%] md:max-w-[700px] lg:max-w-[600px] flex flex-col items-center justify-center md:items-start  ">
+
+                <div class="flex flex-col justify-center items-start text-center md:text-left max-w-full">
+
+                  <h1 
+                    class="slide-title w-full text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-12 sm:leading-18 md:leading-24 mh700:text-2xl font-bold text-transparent [-webkit-text-stroke:2.5px_white] [-webkit-text-fill-color:rgba(255,255,255,0.1)] text-center md:text-left mb-2 "
+                    data-original-text={step.title}
+                  ></h1>
+                  <h2 
+                    class="slide-subtitle w-full text-center md:text-left text-xl sm:text-2xl md:text-3xl leading-8  font-bold text-white mb-2 opacity-0 transform translate-y-4 transition-all duration-800 ease-out"
+                  >
+                    {step.subtitle}
+                  </h2>
+                  <p 
+                    class="slide-description w-full text-sm md:text-md text-center md:text-left text-white/90 leading-auto font-bold max-w-3xl md:max-w-full opacity-0 transform translate-y-4 transition-all duration-800 ease-out"
+                  >
+                    {step.content}
+                  </p>
+
+                </div>
+
+              </div>
+              
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <ScrollIndicator />
+</section>
+
+<style>
+  .bg-image.active {
+    opacity: 1;
+  }
+  
+  .text-slide.active {
+    opacity: 1;
+  }
+  
+  .text-slide.active .slide-subtitle {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .text-slide.active .slide-description {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Gradiente/máscara transparente en imágenes de fondo (como en Music) solo desde 768px (md) hacia arriba */
+  @media (min-width: 768px) {
+    .bg-image {
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+    }
+  }
+  
+
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const bgImages = document.querySelectorAll('.bg-image');
+    const textSlides = document.querySelectorAll('.text-slide');
+    const titles = document.querySelectorAll('.slide-title');
+    
+    let currentTextSlide = 0;
+    let currentBgImage = 0;
+    let textSlideInterval = null;
+    let bgImageInterval = null;
+    let typingInterval = null;
+    
+    // Configuración de timings
+    const textSlideDuration = 6000; // 6 segundos por slide de texto
+    const bgImageDuration = 4000; // 4 segundos por imagen de fondo
+    const typingSpeed = 50; // 50ms por carácter
+    
+    // Arrays aleatorios para las secuencias
+    let randomBgOrder = [];
+    let randomTextOrder = [];
+    
+    // Función para generar orden aleatorio
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+    
+    // Inicializar órdenes aleatorios
+    function initializeRandomOrders() {
+      randomBgOrder = shuffleArray(Array.from({length: bgImages.length}, (_, i) => i));
+      randomTextOrder = shuffleArray(Array.from({length: textSlides.length}, (_, i) => i));
+    }
+    
+    /**
+     * Efecto typing para el título.
+     * @param {HTMLElement} titleElement
+     * @param {string} text
+     * @returns {Promise<void>}
+     */
+    function typeTitle(titleElement, text) {
+      return new Promise((resolve) => {
+        titleElement.textContent = '';
+        let charIndex = 0;
+        
+        typingInterval = setInterval(() => {
+          if (charIndex < text.length) {
+            titleElement.textContent = text.substring(0, charIndex + 1);
+            charIndex++;
+          } else {
+            clearInterval(typingInterval);
+            resolve(undefined);
+          }
+        }, typingSpeed);
+      });
+    }
+    
+    // Mostrar slide de texto
+    async function showTextSlide(index) {
+      // Ocultar slide actual
+      textSlides.forEach(slide => {
+        slide.classList.remove('active');
+        const subtitle = slide.querySelector('.slide-subtitle');
+        const description = slide.querySelector('.slide-description');
+        if (subtitle instanceof HTMLElement) {
+          subtitle.style.opacity = '0';
+          subtitle.style.transform = 'translateY(16px)';
+        }
+        if (description instanceof HTMLElement) {
+          description.style.opacity = '0';
+          description.style.transform = 'translateY(16px)';
+        }
+      });
+      
+      // Mostrar nuevo slide
+      const targetSlide = textSlides[index];
+      const titleElement = targetSlide.querySelector('.slide-title');
+      const subtitle = targetSlide.querySelector('.slide-subtitle');
+      const description = targetSlide.querySelector('.slide-description');
+      
+      if (!(titleElement instanceof HTMLElement)) return;
+      const originalText = titleElement.getAttribute('data-original-text') || '';
+      
+      targetSlide.classList.add('active');
+      
+      // Typing del título
+      await typeTitle(titleElement, originalText);
+      
+      // Mostrar subtitle y description con retraso escalonado
+      setTimeout(() => {
+        if (subtitle instanceof HTMLElement) {
+          subtitle.style.opacity = '1';
+          subtitle.style.transform = 'translateY(0)';
+          subtitle.style.transitionDelay = '0s';
+        }
+      }, 200);
+      
+      setTimeout(() => {
+        if (description instanceof HTMLElement) {
+          description.style.opacity = '1';
+          description.style.transform = 'translateY(0)';
+          description.style.transitionDelay = '0s';
+        }
+      }, 400);
+    }
+    
+    // Mostrar imagen de fondo
+    function showBgImage(index) {
+      bgImages.forEach(img => img.classList.remove('active'));
+      bgImages[index].classList.add('active');
+    }
+    
+    // Avanzar slide de texto
+    function nextTextSlide() {
+      currentTextSlide = (currentTextSlide + 1) % randomTextOrder.length;
+      const actualIndex = randomTextOrder[currentTextSlide];
+      showTextSlide(actualIndex);
+      
+      // Si completamos un ciclo, generar nuevo orden aleatorio
+      if (currentTextSlide === 0) {
+        randomTextOrder = shuffleArray(Array.from({length: textSlides.length}, (_, i) => i));
+      }
+    }
+    
+    // Avanzar imagen de fondo
+    function nextBgImage() {
+      currentBgImage = (currentBgImage + 1) % randomBgOrder.length;
+      const actualIndex = randomBgOrder[currentBgImage];
+      showBgImage(actualIndex);
+      
+      // Si completamos un ciclo, generar nuevo orden aleatorio
+      if (currentBgImage === 0) {
+        randomBgOrder = shuffleArray(Array.from({length: bgImages.length}, (_, i) => i));
+      }
+    }
+    
+    // Inicializar
+    function init() {
+      initializeRandomOrders();
+      
+      // Mostrar primer slide de texto y primera imagen
+      showTextSlide(randomTextOrder[0]);
+      showBgImage(randomBgOrder[0]);
+      
+      // Iniciar intervalos
+      textSlideInterval = setInterval(nextTextSlide, textSlideDuration);
+      bgImageInterval = setInterval(nextBgImage, bgImageDuration);
+    }
+    
+    // Limpiar intervalos
+    function cleanup() {
+      if (textSlideInterval) clearInterval(textSlideInterval);
+      if (bgImageInterval) clearInterval(bgImageInterval);
+      if (typingInterval) clearInterval(typingInterval);
+    }
+    
+    // Manejar visibilidad de la página
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        cleanup();
+      } else {
+        init();
+      }
+    });
+    
+    // Inicializar cuando la sección sea visible
+    init();
+    
+    // Cleanup al salir
+    window.addEventListener('beforeunload', cleanup);
+  });
+</script>

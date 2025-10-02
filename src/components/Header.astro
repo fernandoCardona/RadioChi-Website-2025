@@ -1,0 +1,328 @@
+---
+import LanguageSwitcher from './subcomponentes/LanguageSwitcher.astro';
+import SideMenu from './subcomponentes/SideMenu.astro';
+import { getLangFromUrl } from '../i18n/utils';
+import { IoMdVolumeHigh } from "react-icons/io";
+import { IoMdVolumeOff } from "react-icons/io";
+
+// Traducciones directas para Header
+const lang = getLangFromUrl(Astro.url);
+
+const translations = {
+  es: {
+    openMenu: "Abrir menú"
+  },
+  en: {
+    openMenu: "Open menu"
+  },
+  ca: {
+    openMenu: "Obrir menú"
+  },
+  fr: {
+    openMenu: "Ouvrir le menu"
+  },
+  it: {
+    openMenu: "Apri menu"
+  },
+  de: {
+    openMenu: "Menü öffnen"
+  }
+};
+
+const currentTranslations = translations[lang] || translations.es;
+---
+
+<header id="site-header" class="fixed h-[84px] top-0 left-0 w-full z-[60] bg-transparent px-6 py-4 ">
+  <div class="relative mx-auto flex justify-end items-center">
+    <!-- Logo a la izquierda -->
+    <a href="/" class=" absolute top-[-15px] left-0 flex items-center ">
+      <img 
+        src="/assets/img/logos/RC_Logo_white.png" 
+        alt="Logo" 
+        class=" top-0 left-0 h-20 w-auto"
+      />
+    </a>
+    
+    <!-- Contenedor derecho con botones de control, LanguageSwitcher y menú hamburguesa -->
+    <div class="flex items-center space-x-4">
+      <!-- Botón play/pause del header -->
+      <button 
+        id="header-play-pause-btn"
+        class="text-white hover:text-pink-500 transition-colors"
+        aria-label="Reproducir/Pausar música"
+      >
+        <svg id="header-play-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+        <svg id="header-pause-icon" class="w-5 h-5 hidden text-pink-500" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+        </svg>
+      </button>
+      
+      <!-- Botón de volumen -->
+      <button 
+        id="header-volume-btn"
+        class="text-white hover:text-pink-500 transition-all rounded-md  active:scale-95 "
+        aria-label="Control de volumen"
+      >
+        <IoMdVolumeHigh id="header-volume-icon" className="w-5 h-5" />
+        <IoMdVolumeOff id="header-mute-icon" className="w-5 h-5 text-pink-500 hidden overflow-visible" />
+      </button>
+      
+      <!-- LanguageSwitcher -->
+      <LanguageSwitcher id="header-lang-switcher" />
+      
+      <!-- Menú hamburguesa -->
+      <button 
+        id="menu-toggle"
+        class="group flex flex-col justify-center items-center w-7 h-7 md:w-8 md:h-8 space-y-[5px] md:space-y-[6px] hover:text-pink-500 transition-colors duration-300 cursor-pointer"
+        aria-label={currentTranslations.openMenu}
+      >
+        <span class="block w-7 h-0.5 md:w-8 bg-white group-hover:bg-pink-500 transition-colors duration-300"></span>
+        <span class="block w-7 h-0.5 md:w-8 bg-white group-hover:bg-pink-500 transition-colors duration-300"></span>
+        <span class="block w-7 h-0.5 md:w-8 bg-white group-hover:bg-pink-500 transition-colors duration-300"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Menú lateral -->
+<SideMenu />
+
+<script>
+  if (typeof window !== 'undefined') {
+    // Estado global del volumen (crear solo si no existe)
+    const w = window as any;
+    if (!w.volumeState) {
+      w.volumeState = { isMuted: false, volume: 80 };
+    }
+
+    const initHeaderBlur = () => {
+      let blurTimeout;
+      let touchStartY = null;
+      const headerEl = document.getElementById('site-header');
+
+      const triggerBlur = () => {
+        if (!headerEl) return;
+        headerEl.classList.add('header-blur-active');
+        clearTimeout(blurTimeout);
+        blurTimeout = setTimeout(() => {
+          headerEl.classList.remove('header-blur-active');
+        }, 250);
+      };
+
+      if (!headerEl) return;
+
+      window.addEventListener('scroll', triggerBlur, { passive: true });
+      window.addEventListener('wheel', triggerBlur, { passive: true, capture: true });
+
+      document.addEventListener('keydown', (e) => {
+        const k = e.key;
+        if (k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Spacebar' || k === 'ArrowUp' || k === 'PageUp') {
+          triggerBlur();
+        }
+      }, { capture: true });
+
+      window.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length > 0) {
+          touchStartY = e.touches[0].clientY;
+        }
+      }, { passive: true, capture: true });
+
+      window.addEventListener('touchend', (e) => {
+        if (touchStartY !== null) {
+          const endY = (e.changedTouches && e.changedTouches.length > 0) ? e.changedTouches[0].clientY : touchStartY;
+          const deltaY = Math.abs(endY - touchStartY);
+          if (deltaY > 20) {
+            triggerBlur();
+          }
+          touchStartY = null;
+        }
+      }, { passive: true, capture: true });
+
+      const patchGoToSection = () => {
+        if (typeof (window as any)['goToSection'] === 'function' && !(window as any)['goToSection']._headerPatched) {
+          const originalGoTo = (window as any)['goToSection'];
+          (window as any)['goToSection'] = function() {
+            triggerBlur();
+            return originalGoTo.apply(this, arguments);
+          };
+          (window as any)['goToSection']._headerPatched = true;
+        }
+      };
+
+      patchGoToSection();
+      const checkInterval = setInterval(() => {
+        if (typeof (window as any)['goToSection'] === 'function' && !(window as any)['goToSection']._headerPatched) {
+          patchGoToSection();
+          clearInterval(checkInterval);
+        }
+      }, 100);
+      setTimeout(() => clearInterval(checkInterval), 5000);
+    };
+
+    const initHeaderPlayPauseControl = () => {
+      const btn = document.getElementById('header-play-pause-btn');
+      const playIcon = document.getElementById('header-play-icon');
+      const pauseIcon = document.getElementById('header-pause-icon');
+      if (!btn || !playIcon || !pauseIcon) return;
+
+      const updateIcons = (playing) => {
+        if (playing) {
+          playIcon.classList.add('hidden');
+          pauseIcon.classList.remove('hidden');
+        } else {
+          playIcon.classList.remove('hidden');
+          pauseIcon.classList.add('hidden');
+        }
+      };
+
+      // Estado inicial: reflejar intención de autoplay
+      updateIcons(true);
+
+      // Click play/pause sincronizado con el widget
+      btn.addEventListener('click', () => {
+        const w = window;
+        const evtName = 'headerPlayPauseToggle';
+        // Disparar evento global para que MusicSection2 controle el widget
+        window.dispatchEvent(new CustomEvent(evtName));
+      });
+
+      // Escuchar confirmación de estado desde el player y actualizar iconos
+      window.addEventListener('playerPlayState', (e) => {
+        const playing = !!(e && e['detail'] && e['detail']['isPlaying']);
+        updateIcons(playing);
+      });
+
+      // Ocultar/mostrar el botón en función del hash
+      const toggleVisibility = () => {
+        const isMusic = window.location.hash === '#music' || window.location.pathname.endsWith('/#music');
+        if (btn) {
+          if (isMusic) {
+            btn.classList.add('hidden');
+          } else {
+            btn.classList.remove('hidden');
+          }
+        }
+      };
+
+      // Ejecutar inmediatamente y también con un pequeño delay para asegurar que el DOM esté listo
+      toggleVisibility();
+      setTimeout(toggleVisibility, 100);
+      window.addEventListener('hashchange', toggleVisibility);
+      window.addEventListener('load', toggleVisibility);
+    };
+
+    const initHeaderVolumeControl = () => {
+      const headerVolumeBtn = document.getElementById('header-volume-btn');
+      const headerVolumeIcon = document.getElementById('header-volume-icon');
+      const headerMuteIcon = document.getElementById('header-mute-icon');
+
+      if (!headerVolumeBtn || !headerVolumeIcon || !headerMuteIcon) return;
+
+      // Función global para actualizar el icono del header
+      (window as any).updateHeaderVolumeIcon = (isMuted: boolean) => {
+        if (isMuted) {
+          headerVolumeIcon.classList.add('hidden');
+          headerMuteIcon.classList.remove('hidden');
+          // Color de botón cuando está en mute
+          headerVolumeBtn.classList.remove('text-white');
+          headerVolumeBtn.classList.add('text-pink-300');
+        } else {
+          headerVolumeIcon.classList.remove('hidden');
+          headerMuteIcon.classList.add('hidden');
+          // Restaurar color por defecto cuando no está en mute
+          headerVolumeBtn.classList.add('text-white');
+          headerVolumeBtn.classList.remove('text-pink-300');
+        }
+      };
+
+      // Estado inicial del icono
+      (window as any).updateHeaderVolumeIcon((window as any).volumeState.isMuted);
+
+      // Escuchar cambios globales (tanto desde el header como desde el player)
+      window.addEventListener('headerVolumeToggle', (e: any) => {
+        const detail = e?.detail || {};
+        const state = (window as any).volumeState || { isMuted: false, volume: 80 };
+        state.isMuted = !!detail.isMuted;
+        state.volume = typeof detail.volume === 'number' ? detail.volume : state.volume;
+        (window as any).volumeState = state;
+        (window as any).updateHeaderVolumeIcon(state.isMuted);
+      });
+
+      // Event listener del botón de volumen del header
+      headerVolumeBtn.addEventListener('click', () => {
+        const state = (window as any).volumeState || { isMuted: false, volume: 80 };
+        state.isMuted = !state.isMuted;
+        (window as any).volumeState = state;
+
+        // Actualizar icono del header
+        (window as any).updateHeaderVolumeIcon(state.isMuted);
+
+        // Notificar a otros componentes (player)
+        window.dispatchEvent(new CustomEvent('headerVolumeToggle', {
+          detail: { 
+            isMuted: state.isMuted,
+            volume: state.volume
+          }
+        }));
+      });
+
+      // Ocultar/mostrar el botón de volumen en función del hash
+      const toggleVolumeVisibility = () => {
+        const isMusic = window.location.hash === '#music' || window.location.pathname.endsWith('/#music');
+        if (headerVolumeBtn) {
+          if (isMusic) {
+            headerVolumeBtn.classList.add('hidden');
+          } else {
+            headerVolumeBtn.classList.remove('hidden');
+          }
+        }
+      };
+
+      // Ejecutar inmediatamente y también con un pequeño delay para asegurar que el DOM esté listo
+      toggleVolumeVisibility();
+      setTimeout(toggleVolumeVisibility, 100);
+      window.addEventListener('hashchange', toggleVolumeVisibility);
+      window.addEventListener('load', toggleVolumeVisibility);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        initHeaderBlur();
+        initHeaderPlayPauseControl();
+        initHeaderVolumeControl();
+      });
+    } else {
+      initHeaderBlur();
+      initHeaderPlayPauseControl();
+      initHeaderVolumeControl();
+    }
+  }
+</script>
+
+<style>
+  .header-blur-active {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+    transition: background 0.3s ease-in-out;
+  }
+  /* Estilos para el menú hamburguesa */
+  #menu-toggle:hover span {
+    background-color: #f0f0f0;
+  }
+  
+  /* Animación para cuando el menú esté activo (se implementará después) */
+  #menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  
+  #menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  #menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+  }
+</style>

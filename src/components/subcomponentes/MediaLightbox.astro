@@ -1,0 +1,229 @@
+---
+// MediaLightbox.astro - Componente reutilizable para lightbox de medios
+const { id = "mediaLightbox" } = Astro.props;
+---
+
+<!-- Lightbox para medios (imágenes/videos) -->
+<div id={id} class="fixed inset-0 bg-black/75 items-center justify-center z-50 hidden opacity-0 transition-all duration-300 py-[90px] overflow-y-auto">
+  <div class="lightbox-overlay absolute inset-0 bg-black opacity-60"></div>
+  <div class="relative w-full xs:w-4/5 md:w-4/5 lg:w-4/5 xl:w-4/5 mx-auto transform scale-95 transition-transform duration-300 my-auto" id={`${id}Content`}>
+    <button id={`close${id}`} class="absolute top-2 right-2 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors bg-black/50 z-10">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="white">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    
+    <div class="relative bg-gray-900 rounded-lg overflow-hidden">
+      <div id={`${id}MediaContainer`} class="w-full">
+        <!-- El contenido del medio (imagen o iframe) se insertará aquí mediante JavaScript -->
+      </div>
+      
+      <button id={`prev${id}Item`} class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-r-lg text-white hover:bg-opacity-70 transition-colors hidden sm:block">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      
+      <button id={`next${id}Item`} class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 p-2 rounded-l-lg text-white hover:bg-opacity-70 transition-colors hidden sm:block">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+    
+    <div class="mt-4 text-white bg-gray-900 p-4 rounded-lg">
+      <div class="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3 xs:gap-0">
+        <div class="w-full xs:w-auto">
+          <p id={`${id}Caption`} class="text-lg truncate max-w-[200px] xs:max-w-none"></p>
+        </div>
+        <a id={`${id}Link`} href="#" target="_blank" rel="noopener noreferrer" class="inline-block px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-colors whitespace-nowrap text-sm">
+          Ver en YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ id }}>
+// Función para abrir el lightbox
+function openMediaLightbox(mediaUrl, type, caption, date, externalLink, linkText) {
+  const lightbox = document.getElementById(id);
+  const mediaContainer = document.getElementById(`${id}MediaContainer`);
+  const captionEl = document.getElementById(`${id}Caption`);
+  const linkEl = document.getElementById(`${id}Link`);
+  
+  // Limpiar el contenedor
+  mediaContainer.innerHTML = '';
+  
+  // Insertar el medio según su tipo
+  if (type === 'video') {
+    // Para videos de YouTube
+    const iframe = document.createElement('iframe');
+    iframe.src = mediaUrl;
+    iframe.width = '100%';
+    iframe.height = '500';
+    iframe.frameBorder = '0';
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    mediaContainer.appendChild(iframe);
+  } else {
+    // Para imágenes
+    const img = document.createElement('img');
+    img.src = mediaUrl;
+    img.alt = caption || '';
+    img.className = 'w-full h-auto max-h-[80vh] object-contain';
+    mediaContainer.appendChild(img);
+  }
+  
+  // Actualizar información
+  captionEl.textContent = caption || '';
+  
+  // Configurar enlace externo
+  if (externalLink) {
+    linkEl.href = externalLink;
+    linkEl.textContent = linkText || 'Ver más';
+    linkEl.style.display = 'inline-block';
+  } else {
+    linkEl.style.display = 'none';
+  }
+  
+  // Configurar botones de navegación para fotos
+  const prevBtn = document.getElementById(`prev${id}Item`);
+  const nextBtn = document.getElementById(`next${id}Item`);
+  
+  if (type === 'image' && window.allPhotos && window.allPhotos.length > 1) {
+    // Mostrar botones de navegación solo para imágenes
+    prevBtn.style.display = 'block';
+    nextBtn.style.display = 'block';
+    
+    // Configurar eventos de navegación
+    prevBtn.onclick = () => {
+      if (window.currentPhotoIndex > 0) {
+        window.currentPhotoIndex--;
+        const prevPhoto = window.allPhotos[window.currentPhotoIndex];
+        openMediaLightbox(prevPhoto.src, 'image', prevPhoto.title, prevPhoto.description, null, null);
+      }
+    };
+    
+    nextBtn.onclick = () => {
+      if (window.currentPhotoIndex < window.allPhotos.length - 1) {
+        window.currentPhotoIndex++;
+        const nextPhoto = window.allPhotos[window.currentPhotoIndex];
+        openMediaLightbox(nextPhoto.src, 'image', nextPhoto.title, nextPhoto.description, null, null);
+      }
+    };
+  } else {
+    // Ocultar botones de navegación para videos o si solo hay una foto
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+  }
+  
+  // Mostrar el lightbox con animación
+  lightbox.classList.remove('hidden');
+  lightbox.classList.add('flex');
+  setTimeout(() => {
+    lightbox.classList.add('opacity-100');
+    document.getElementById(`${id}Content`).classList.remove('scale-95');
+    document.getElementById(`${id}Content`).classList.add('scale-100');
+  }, 10);
+  
+  // Configurar navegación táctil para dispositivos móviles
+  if (type === 'image' && window.allPhotos && window.allPhotos.length > 1) {
+    // Variables para detectar deslizamiento
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    // Añadir eventos táctiles al contenedor de medios
+    mediaContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+    
+    mediaContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+    
+    // Función para manejar el deslizamiento
+    function handleSwipe() {
+      const swipeThreshold = 50; // Umbral mínimo para considerar un deslizamiento
+      
+      if (touchEndX < touchStartX - swipeThreshold) {
+        // Deslizamiento hacia la izquierda (siguiente foto)
+        if (window.currentPhotoIndex < window.allPhotos.length - 1) {
+          window.currentPhotoIndex++;
+          const nextPhoto = window.allPhotos[window.currentPhotoIndex];
+          openMediaLightbox(nextPhoto.src, 'image', nextPhoto.title, nextPhoto.description, null, null);
+        }
+      }
+      
+      if (touchEndX > touchStartX + swipeThreshold) {
+        // Deslizamiento hacia la derecha (foto anterior)
+        if (window.currentPhotoIndex > 0) {
+          window.currentPhotoIndex--;
+          const prevPhoto = window.allPhotos[window.currentPhotoIndex];
+          openMediaLightbox(prevPhoto.src, 'image', prevPhoto.title, prevPhoto.description, null, null);
+        }
+      }
+    }
+  }
+  
+  // Bloquear scroll del body
+  document.body.style.overflow = 'hidden';
+}
+
+// Función para cerrar el lightbox
+function closeMediaLightbox() {
+  const lightbox = document.getElementById(id);
+  const content = document.getElementById(`${id}Content`);
+  const mediaContainer = document.getElementById(`${id}MediaContainer`);
+  
+  // Animar cierre
+  lightbox.classList.remove('opacity-100');
+  content.classList.remove('scale-100');
+  content.classList.add('scale-95');
+  
+  // Detener la reproducción del video limpiando el contenedor
+  mediaContainer.innerHTML = '';
+  
+  // Ocultar después de la animación
+  setTimeout(() => {
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+    // Restaurar scroll
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+// Configurar eventos cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+  // Evento para cerrar con el botón
+  const closeButton = document.getElementById(`close${id}`);
+  if (closeButton) {
+    closeButton.addEventListener('click', closeMediaLightbox);
+  }
+  
+  // Evento para cerrar al hacer clic fuera
+  const overlay = document.querySelector(`#${id} .lightbox-overlay`);
+  if (overlay) {
+    overlay.addEventListener('click', closeMediaLightbox);
+  }
+  
+  // Cerrar con tecla Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMediaLightbox();
+    }
+  });
+});
+
+// Exponer funciones al ámbito global para poder llamarlas desde otros componentes
+window[`open${id}`] = openMediaLightbox;
+window[`close${id}`] = closeMediaLightbox;
+
+// También exponer la función con un nombre genérico para facilitar su uso
+if (id === 'photoLightbox') {
+  window.openphotoLightbox = openMediaLightbox;
+} else if (id === 'videoLightbox') {
+  window.openvideoLightbox = openMediaLightbox;
+}
+</script>

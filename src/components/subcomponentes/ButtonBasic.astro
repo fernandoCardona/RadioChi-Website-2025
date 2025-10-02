@@ -1,0 +1,167 @@
+---
+// ButtonBasic.astro - Componente de botón básico reutilizable
+import { useTranslations, getLangFromUrl } from '../../i18n/utils.js';
+
+const { href = "#", text, target = "_self", class: className = "", variant = "basic", event } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// Calcular días hasta el evento si se proporciona fecha
+let daysUntilEvent = null;
+if (event && event.trim() !== '') {
+  try {
+    // Extraer la fecha del texto (por si contiene texto adicional)
+    const dateRegex = /(\d{1,2})-(\d{1,2})-(\d{4})/;
+    const match = event.match(dateRegex);
+    
+    if (match) {
+      // Formato DD-MM-YYYY o D-MM-YYYY o D-M-YYYY
+      const day = match[1].padStart(2, '0');
+      const month = match[2].padStart(2, '0');
+      const year = match[3];
+      
+      // Crear fecha en formato YYYY-MM-DD
+      const eventDate = new Date(`${year}-${month}-${day}`);
+      
+      // Verificar si la fecha es válida
+      if (!isNaN(eventDate.getTime())) {
+        const currentDate = new Date();
+        // Establecer hora a medianoche para comparación exacta de días
+        currentDate.setHours(0, 0, 0, 0);
+        eventDate.setHours(0, 0, 0, 0);
+        
+        const timeDiff = eventDate.getTime() - currentDate.getTime();
+        daysUntilEvent = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      } else {
+        console.error(`Fecha inválida después de parsear: ${event}`);
+      }
+    } else {
+      // Intentar con formato estándar
+      const dateParts = event.split('-');
+      if (dateParts.length === 3) {
+        const day = dateParts[0].padStart(2, '0');
+        const month = dateParts[1].padStart(2, '0');
+        const year = dateParts[2];
+        
+        const eventDate = new Date(`${year}-${month}-${day}`);
+        
+        if (!isNaN(eventDate.getTime())) {
+          const currentDate = new Date();
+          currentDate.setHours(0, 0, 0, 0);
+          eventDate.setHours(0, 0, 0, 0);
+          
+          const timeDiff = eventDate.getTime() - currentDate.getTime();
+          daysUntilEvent = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        } else {
+          console.error(`Fecha inválida con formato estándar: ${event}`);
+        }
+      } else {
+        console.error(`Formato de fecha no reconocido: ${event}`);
+      }
+    }
+  } catch (error) {
+    console.error(`Error al procesar la fecha: ${event}`, error);
+  }
+}
+---
+
+ <a href={href} target="_blank" class="btn animation four_b font-bold text-white text-sm md:text-md  transition-all duration-300 mt-4">
+    {daysUntilEvent !== null && (
+     <span class="days-counter font-bold text-white  text-md transition-all duration-300">{daysUntilEvent} {t('days')}</span>
+   )} 
+    {text}
+   
+ </a>
+
+<style> 
+
+
+a.animation:link, a.animation:visited {
+  position: relative;
+  display: block;
+  max-width: 500px;
+  width: fit-content;
+  /* margin: 30px auto 0; */
+  padding: 5px 15px;
+  border: 2px solid #fff;
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  letter-spacing: .08em;
+  border-radius: 60px;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-transition: all .3s ease;
+  -moz-transition: all .3s ease;
+  -o-transition: all .3s ease;
+  transition: all .3s ease;
+}
+a.animation:link:after, a.animation:visited:after {
+  content: "";
+  position: absolute;
+  background: none repeat scroll 0 0 rgba(255, 255, 255, 0.3);
+  height: 0%;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  z-index: -1;
+  -webkit-transition: all .3s ease 0s;
+  -moz-transition: all .3s ease 0s;
+  -o-transition: all .3s ease 0s;
+  transition: all .3s ease 0s;
+}
+a.animation:link:hover, a.animation:visited:hover {
+  color: #fff;
+  text-shadow: none;
+}
+a.animation:link:hover:after, a.animation:visited:hover:after {
+  height: 420%;
+}
+
+a.animation.first_b:after {
+  -moz-transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+  -ms-transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+  -webkit-transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+  transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+}
+a.animation.secondary_b:after {
+  -moz-transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  -ms-transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  -webkit-transform: translateX(-50%) translateY(-50%) rotate(45deg);
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+}
+a.animation.third_b:after {
+  opacity: .5;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+a.animation.third_b:hover:after {
+  height: 140%;
+  opacity: 1;
+}
+a.animation.four_b:after {
+  width: 0%;
+  border-radius: 50%;
+  opacity: .5;
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+a.animation.four_b:hover:after {
+  height: 450%;
+  width: 110%;
+  opacity: 1;
+}
+
+/* .days-counter {
+  display: block;
+  font-size: 0.8em;
+  opacity: 0.8;
+  margin-top: 2px;
+} */
+</style>

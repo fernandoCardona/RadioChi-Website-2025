@@ -1,0 +1,583 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { useTranslations } from '../../i18n/utils';
+import { getLangFromUrl } from '../../i18n/utils';
+import LanguageSwitcher from '../../components/subcomponentes/LanguageSwitcher.astro';
+import HomeSection from '../../components/sections/HomeSection.astro';
+import AboutSection from '../../components/sections/AboutSection.astro';
+import ContactSection from '../../components/sections/ContactSection.astro';
+import MusicSection from '../../components/sections/MusicSection2.astro';
+import MediaSection from '../../components/sections/MediaSection.astro';
+import CalendarEvents from '../../components/sections/CalendarEvents.astro';
+
+// IntroWebsite eliminado
+import ScrollIndicator from '../../components/subcomponentes/Scroll-indicator.astro';
+import ProgressBar from '../../components/subcomponentes/ProgressBar.astro';
+import MusicSection2 from '../../components/sections/MusicSection2.astro';
+import AboutSection2 from '../../components/sections/AboutSection2.astro';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<Layout title={`${t('name')}`}>
+  <!-- Home debe estar presente e inmóvil debajo del intro -->
+  <!-- Fullpage Container - Siempre presente -->
+  <div class="fullpage-container home-background">
+    <div class="fullpage-wrapper" id="fullpage-wrapper">
+      
+      <!-- Home Section - Siempre visible debajo -->
+      <section id="home" class="relative">
+        <HomeSection translations={t} />
+        <!-- Scroll indicator -->
+        <ScrollIndicator />
+      </section>
+
+      <!-- About Section -->
+      <AboutSection2 />
+
+      <!-- Music Section -->
+      <MusicSection2 />
+
+      <!-- Calendar Events Section -->
+      <CalendarEvents translations={t} />
+
+      <!-- Media Section -->
+      <MediaSection translations={t} />
+
+      <!-- Contact Section -->
+      <ContactSection />
+
+      <!-- Progress Bar Navigation -->
+      <ProgressBar />
+    </div>
+  </div>
+
+  <!-- Intro Website Component - Encima del home -->
+  <!-- IntroWebsite eliminado -->
+  
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 w-full z-50 bg-black/90 backdrop-blur-sm intro-hidden">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div class="text-white font-bold text-xl" set:html={t('name')}></div>
+        <div class="flex items-center space-x-8">
+          <ul class="hidden md:flex space-x-8">
+            <li><a href="#home" class="text-white hover:text-red-500 transition-colors" set:html={t('menu.home')}></a></li>
+            <li><a href="#about" class="text-white hover:text-red-500 transition-colors" set:html={t('menu.about')}></a></li>
+            <li><a href="#music" class="text-white hover:text-red-500 transition-colors" set:html={t('menu.music')}></a></li>
+            <!-- <li><a href="#media" class="text-white hover:text-red-500 transition-colors" set:html={t('menu.media')}></a></li> -->
+            <!-- <li><a href="#myjournal" class="text-white hover:text-red-500 transition-colors" set:html={t('menu.myjournal')}></a></li> -->
+            <li><a href="#contact" class="text-white hover:text-red-500 transition-colors" set:html={t('menu.contact')}></a></li>
+          </ul>
+          <LanguageSwitcher />
+        </div>
+      </div>
+    </div>
+  </nav>
+</Layout>
+
+<style>
+  /* Reset and base styles - FullPage.js style */
+  :global(html) {
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+  
+  :global(body) {
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Main container for fullpage scroll */
+  .fullpage-container {
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    /* SIEMPRE renderizado y visible en el DOM */
+    display: block !important;
+    /* Sin interacción durante la intro - INMÓVIL */
+    pointer-events: auto;
+    /* Evitar que el scroll afecte al home durante la intro */
+    overflow: hidden;
+  }
+  
+  /* Home background siempre presente, visible e inmóvil debajo del intro */
+  .home-background {
+    z-index: 1;
+    /* Forzar que esté siempre visible */
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Cuando termina la intro, activar interacciones y scroll */
+  .intro-finished .fullpage-container {
+    pointer-events: auto;
+    z-index: 10;
+    /* Permitir scroll cuando termine la intro */
+    overflow: visible;
+  }
+  
+  /* Navegación oculta durante la intro */
+  .intro-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  
+  /* Navegación visible después de la intro */
+  .intro-finished .intro-hidden {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  .fullpage-wrapper {
+    height: 600vh; /* 6 sections * 100vh */
+    position: relative;
+    -webkit-transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  /* Section styles */
+  :global(.section) {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    pointer-events: auto;
+  }
+  
+  /* Position each section on top of each other */
+  :global(section:nth-child(1)) { z-index: 6; }
+  :global(section:nth-child(2)) { z-index: 5; }
+  :global(section:nth-child(3)) { z-index: 4; }
+  :global(section:nth-child(4)) { z-index: 3; }
+  :global(section:nth-child(5)) { z-index: 2; }
+  :global(section:nth-child(6)) { z-index: 1; }
+  
+  /* Custom scrollbar */
+  :global(::-webkit-scrollbar) {
+    width: 8px;
+  }
+  
+  :global(::-webkit-scrollbar-track) {
+    background: #1e293b;
+  }
+  
+  :global(::-webkit-scrollbar-thumb) {
+    background: #dc2626;
+    border-radius: 4px;
+  }
+  
+  :global(::-webkit-scrollbar-thumb:hover) {
+    background: #b91c1c;
+  }
+
+  /* Navigation active state */
+  .nav-active {
+    color: #dc2626 !important;
+  }
+  
+  /* Progress bar styles are now in ProgressBar.astro component */
+</style>
+
+<script>
+  // @ts-nocheck
+  // FullPage.js inspired implementation - JavaScript puro
+  function createFullPageScroll() {
+    // **SOLUCIÓN CONDICIONES DE CARRERA**: Verificar si ya se inicializó
+    if (window.fullPageInitialized) {
+      // console.log('⚠️ FullPageScroll ya está inicializado, evitando doble init');
+      return;
+    }
+    
+    // Marcar como inicializado inmediatamente
+    window.fullPageInitialized = true;
+    
+    let wrapper = document.getElementById('fullpage-wrapper');
+    let sections = document.querySelectorAll('section[id]');
+    let navLinks = document.querySelectorAll('nav a[href^="#"], .sidebar-link[href^="#"]');
+    let navDots = document.querySelectorAll('.progress-dot');
+    let currentSectionIndex = 0;
+    let isScrolling = false;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    let wheelTimeout = null;
+    let scrollSensitivity = 100;
+    let animationDuration = 700;
+    
+    function init() {
+      // Prevent default scroll behavior
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      
+      // Initialize all sections to their default positions first
+      sections.forEach((section, index) => {
+        const htmlSection = section;
+        htmlSection.style.position = 'absolute';
+        htmlSection.style.top = '0';
+        htmlSection.style.left = '0';
+        htmlSection.style.width = '100%';
+        htmlSection.style.height = '100vh';
+        htmlSection.style.zIndex = (sections.length - index).toString();
+        htmlSection.style.transform = 'translateY(0)';
+        htmlSection.style.transition = 'none';
+      });
+      
+      // Handle initial hash
+      handleInitialHash();
+      
+      // Set initial position
+      goToSection(currentSectionIndex, false);
+      
+      // Bind events
+      bindEvents();
+      
+      // Update active states
+      updateActiveStates();
+    }
+    
+    function bindEvents() {
+      // Mouse wheel with improved sensitivity
+      document.addEventListener('wheel', handleWheel, { passive: false });
+      
+      // Touch events
+      document.addEventListener('touchstart', handleTouchStart, { passive: true });
+      document.addEventListener('touchend', handleTouchEnd, { passive: true });
+      
+      // Keyboard navigation
+      document.addEventListener('keydown', handleKeydown);
+      
+      // Navigation clicks
+      navLinks.forEach((link) => {
+        link.addEventListener('click', handleNavClick);
+      });
+      
+      // Progress bar events
+      if (typeof window.bindProgressBarEvents === 'function') {
+        window.bindProgressBarEvents(goToSection);
+      }
+      
+      // Navigation dots clicks (fallback)
+      navDots.forEach((dot, index) => {
+        dot.addEventListener('click', () => goToSection(index));
+      });
+      
+      // Sincronización de hash con la sección activa
+      window.addEventListener('hashchange', handleHashChange);
+      
+      // Prevent context menu on right click for better UX
+      // document.addEventListener('contextmenu', (e) => {
+      //   if (e.target && e.target.closest && e.target.closest('.fullpage-container')) {
+      //     e.preventDefault();
+      //   }
+      // });
+    }
+    
+    function handleWheel(e) {
+      // No interceptar scroll si el modal está abierto
+      const modalOverlay = document.getElementById('modal-overlay');
+      if (modalOverlay && !modalOverlay.classList.contains('hidden')) {
+        return; // Permitir scroll normal en el modal
+      }
+      
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (isScrolling) return;
+      
+      // Clear previous timeout
+      if (wheelTimeout) {
+        clearTimeout(wheelTimeout);
+      }
+      
+      // Improved wheel detection
+      const delta = Math.abs(e.deltaY);
+      
+      if (delta < 10) return; // Ignore very small movements
+      
+      wheelTimeout = setTimeout(() => {
+        if (e.deltaY > 0) {
+          moveDown();
+        } else {
+          moveUp();
+        }
+      }, 10);
+    }
+    
+    function handleTouchStart(e) {
+      touchStartY = e.touches[0].clientY;
+    }
+    
+    function handleTouchEnd(e) {
+      touchEndY = e.changedTouches[0].clientY;
+      const deltaY = touchStartY - touchEndY;
+      
+      if (Math.abs(deltaY) > 50) {
+        if (deltaY > 0) {
+          moveDown();
+        } else {
+          moveUp();
+        }
+      }
+    }
+    
+    function handleKeydown(e) {
+      // No interceptar teclado si el modal está abierto, excepto Escape
+      const modalOverlay = document.getElementById('modal-overlay');
+      const modalOpen = modalOverlay && !modalOverlay.classList.contains('hidden');
+      if (modalOpen && e.key !== 'Escape') {
+        return; // Permitir interacción normal con inputs/modales
+      }
+      
+      if (isScrolling) return;
+      
+      switch(e.key) {
+        case 'ArrowDown':
+        case 'PageDown':
+        case ' ':
+          e.preventDefault();
+          moveDown();
+          break;
+        case 'ArrowUp':
+        case 'PageUp':
+          e.preventDefault();
+          moveUp();
+          break;
+        case 'Home':
+          e.preventDefault();
+          goToSection(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          goToSection(sections.length - 1);
+          break;
+      }
+    }
+    
+    function handleNavClick(e) {
+      e.preventDefault();
+      const target = e.target;
+      const href = target.getAttribute('href');
+      
+      if (href) {
+        const targetId = href.substring(1);
+        const targetIndex = Array.from(sections).findIndex(section => 
+          section.getAttribute('id') === targetId
+        );
+        
+        if (targetIndex !== -1) {
+          goToSectionSequentially(targetIndex);
+        }
+      }
+    }
+    
+    function goToSectionSequentially(targetIndex) {
+      const currentIndex = currentSectionIndex;
+      const distance = Math.abs(targetIndex - currentIndex);
+      
+      // Si la distancia es 1 o menos, ir directamente
+      if (distance <= 1) {
+        goToSection(targetIndex);
+        return;
+      }
+      
+      // Si hay múltiples secciones, ir una por una automáticamente
+      const direction = targetIndex > currentIndex ? 1 : -1;
+      let currentStep = currentIndex;
+      
+      const moveToNext = () => {
+        if (currentStep === targetIndex) return;
+        
+        currentStep += direction;
+        goToSection(currentStep);
+        
+        // Continuar al siguiente paso después de la animación
+        if (currentStep !== targetIndex) {
+          setTimeout(moveToNext, animationDuration + 100);
+        }
+      };
+      
+      moveToNext();
+    }
+    
+    function moveUp() {
+      if (currentSectionIndex > 0) {
+        goToSection(currentSectionIndex - 1);
+      }
+    }
+    
+    function moveDown() {
+      if (currentSectionIndex < sections.length - 1) {
+        goToSection(currentSectionIndex + 1);
+      }
+    }
+    
+    function goToSection(index, animate = true) {
+       if (index < 0 || index >= sections.length || isScrolling) return;
+       
+       if (animate) {
+         isScrolling = true;
+         setTimeout(() => {
+           isScrolling = false;
+         }, animationDuration);
+       }
+       
+       currentSectionIndex = index;
+       
+       // Move each section individually to create stacked effect
+       sections.forEach((section, sectionIndex) => {
+         const htmlSection = section;
+         
+         if (sectionIndex < index) {
+           // Sections that should be moved up (hidden)
+           const translateY = -100 * (index - sectionIndex);
+           htmlSection.style.transform = `translateY(${translateY}vh)`;
+         } else {
+           // Current section and sections below remain in place
+           htmlSection.style.transform = 'translateY(0vh)';
+         }
+         
+         htmlSection.style.transition = animate ? 
+            `transform ${animationDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)` : 'none';
+          
+          // Add subtle bounce effect at the end
+          if (animate) {
+            setTimeout(() => {
+              htmlSection.style.transition = `transform 120ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
+              // Very subtle bounce back
+              if (sectionIndex < index) {
+                const bounceY = -100 * (index - sectionIndex) + 0.8;
+                htmlSection.style.transform = `translateY(${bounceY}vh)`;
+                
+                setTimeout(() => {
+                  htmlSection.style.transition = `transform 80ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+                  const finalY = -100 * (index - sectionIndex);
+                  htmlSection.style.transform = `translateY(${finalY}vh)`;
+                }, 120);
+              }
+            }, animationDuration - 150);
+          }
+       });
+       
+       updateActiveStates();
+       updateURL();
+     }
+    
+    function updateActiveStates() {
+      const currentSection = sections[currentSectionIndex];
+      const currentId = currentSection?.getAttribute('id') || '';
+      
+      // Trackear la visita a la sección en Analytics
+      if (typeof window.trackSectionView === 'function') {
+        window.trackSectionView(currentId);
+      }
+      
+      // Update navigation links
+      navLinks.forEach(link => {
+        link.classList.remove('nav-active');
+        const href = link.getAttribute('href');
+        if (href === `#${currentId}`) {
+          link.classList.add('nav-active');
+        }
+      });
+      
+      // Update progress bar
+      if (typeof window.updateProgressBar === 'function') {
+        window.updateProgressBar(currentSectionIndex, sections.length);
+      }
+      
+      // Update navigation dots (fallback)
+      navDots.forEach((dot, index) => {
+        dot.classList.remove('active');
+        if (index === currentSectionIndex) {
+          dot.classList.add('active');
+        }
+      });
+      
+      // Add body class for current section
+      document.body.className = document.body.className.replace(/fp-viewing-\w+/g, '');
+      document.body.classList.add(`fp-viewing-${currentId}`);
+    }
+    
+    function updateURL() {
+      const currentSection = sections[currentSectionIndex];
+      const currentId = currentSection?.getAttribute('id');
+      
+      if (currentId) {
+        // Usar replaceState para evitar disparar 'hashchange' (previene bucles)
+        history.replaceState(null, '', `/ca/#${currentId}`);
+      }
+    }
+    
+    // Manejar cambios de hash (navegación por #ancla o back/forward)
+    function handleHashChange() {
+      // Si estamos en medio de una animación, esperar a que termine
+      if (isScrolling) {
+        setTimeout(handleHashChange, animationDuration);
+        return;
+      }
+      const hash = window.location.hash.substring(1);
+      if (!hash) return;
+      
+      const targetIndex = Array.from(sections).findIndex(section => 
+        section.getAttribute('id') === hash
+      );
+      
+      if (targetIndex !== -1 && targetIndex !== currentSectionIndex) {
+        goToSection(targetIndex);
+      }
+    }
+    
+    function handleInitialHash() {
+      const hash = window.location.hash.substring(1);
+      
+      if (hash) {
+        const targetIndex = Array.from(sections).findIndex(section => 
+          section.getAttribute('id') === hash
+        );
+        
+        if (targetIndex !== -1) {
+          currentSectionIndex = targetIndex;
+        }
+      }
+    }
+    
+    // Inicializar
+    init();
+  }
+  
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    // **SOLUCIÓN CONDICIONES DE CARRERA**: Inicializar bandera global
+    if (typeof window.fullPageInitialized === 'undefined') {
+      window.fullPageInitialized = false;
+    }
+    
+    // Inicializar FullPageScroll directamente sin esperar a la intro
+      createFullPageScroll();
+   });
+</script>

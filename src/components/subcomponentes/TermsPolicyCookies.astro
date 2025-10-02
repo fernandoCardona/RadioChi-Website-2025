@@ -1,0 +1,178 @@
+---
+// TermsPolicyCookies.astro - Componente de botones
+import { useTranslations, getLangFromUrl } from '../../i18n/utils.js';
+
+const url = Astro.url;
+const lang = getLangFromUrl(url);
+const t = useTranslations(lang);
+
+// Obtener los datos directamente desde las traducciones ya importadas
+const terms_button = t('terms_button');
+const privacy_button = t('privacy_button');
+const cookies_button = t('cookies_button');
+const terms = t('terms');
+const privacy = t('privacy');
+const cookies = t('cookies');
+---
+
+<div class="terms-policy-cookies">
+  <!-- Botones en fila -->
+  <div class="buttons-row flex flex-col lg:flex-row lg:flex-wrap gap-4 justify-center lg:items-end lg:justify-end ">
+    <button id="terms-btn" class="policy-btn text-white text-sm text-right lg:text-center hover:text-gray-900 transition-all duration-300">
+      {terms_button}
+    </button>
+    <button id="privacy-btn" class="policy-btn text-white text-sm text-right lg:text-center hover:text-gray-900 transition-all duration-300">
+      {privacy_button}
+    </button>
+    <button id="cookies-btn" class="policy-btn text-white text-sm text-right lg:text-center hover:text-gray-900 transition-all duration-300">
+      {cookies_button}
+    </button>
+  </div>
+</div>
+
+<style>
+  .terms-policy-cookies {
+    position: relative;
+  }
+
+
+  .policy-btn {
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+
+  /* Responsive - A menos de 768px los botones se adaptan para sidebar */
+
+</style>
+
+<script define:vars={{ terms, privacy, cookies }}>
+  document.addEventListener('DOMContentLoaded', () => {
+    // console.log('TermsPolicyCookies buttons script iniciado');
+    
+    // Buscar TODOS los botones con estos IDs
+    const allTermsBtns = document.querySelectorAll('#terms-btn');
+    const allPrivacyBtns = document.querySelectorAll('#privacy-btn');
+    const allCookiesBtns = document.querySelectorAll('#cookies-btn');
+    
+    // console.log('TOTAL botones encontrados:');
+    // console.log('Terms buttons:', allTermsBtns.length);
+    // console.log('Privacy buttons:', allPrivacyBtns.length);
+    // console.log('Cookies buttons:', allCookiesBtns.length);
+    
+    // Mostrar dónde están ubicados
+    allTermsBtns.forEach((btn, index) => {
+      // console.log(`Terms button ${index}:`, btn);
+      // console.log(`Parent:`, btn.parentElement);
+      // console.log(`Grandparent:`, btn.parentElement?.parentElement);
+    });
+    
+    const termsBtn = document.getElementById('terms-btn');
+    const privacyBtn = document.getElementById('privacy-btn');
+    const cookiesBtn = document.getElementById('cookies-btn');
+
+    // console.log('Botones encontrados:', {
+    //   termsBtn: !!termsBtn,
+    //   privacyBtn: !!privacyBtn,
+    //   cookiesBtn: !!cookiesBtn
+    // });
+
+    // Contenido de los modales desde JSON
+    const modalContent = {
+      terms: {
+        title: `${terms.title}`,
+        content: `${terms.content}`
+      },
+      privacy: {
+        title: `${privacy.title}`,
+        content: `${privacy.content}`
+      },
+      cookies: {
+        title: `${cookies.title}`,
+        content: `${cookies.content}`
+      }
+    };
+
+    // Event listeners para TODOS los botones Terms
+    allTermsBtns.forEach((btn, index) => {
+      // console.log(`Añadiendo event listener a Terms button ${index}`);
+       btn.addEventListener('click', (e) => {
+         // console.log(`CLICK EN TERMS BUTTON ${index} DETECTADO!`);
+         // console.log('Event:', e);
+         // console.log('Target:', e.target);
+         // console.log('CurrentTarget:', e.currentTarget);
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (window['openModal']) {
+          window['openModal'](modalContent.terms.title, modalContent.terms.content);
+        } else {
+          console.error('openModal function not found');
+        }
+      });
+      
+      btn.addEventListener('mouseenter', () => {
+        // console.log(`HOVER EN TERMS BUTTON ${index}!`);
+      });
+    });
+    
+    // Event listeners para TODOS los botones Privacy
+     allPrivacyBtns.forEach((btn, index) => {
+       // console.log(`Añadiendo event listener a Privacy button ${index}`);
+       btn.addEventListener('click', (e) => {
+         // console.log(`CLICK EN PRIVACY BUTTON ${index} DETECTADO!`);
+         e.preventDefault();
+         e.stopPropagation();
+         
+         // Redireccionar a la página de política de privacidad según el idioma actual
+         const currentLang = document.documentElement.lang || 'es';
+         let privacyUrl = '';
+         
+         switch(currentLang) {
+           case 'es':
+             privacyUrl = '/politica-de-privacidad';
+             break;
+           case 'ca':
+             privacyUrl = '/ca/politica-de-privacitat';
+             break;
+           case 'en':
+             privacyUrl = '/en/privacy-policy';
+             break;
+           case 'fr':
+             privacyUrl = '/fr/politique-de-confidentialite';
+             break;
+           case 'de':
+             privacyUrl = '/de/datenschutzrichtlinie';
+             break;
+           case 'it':
+             privacyUrl = '/it/politica-sulla-riservatezza';
+             break;
+           default:
+             privacyUrl = '/politica-de-privacidad';
+         }
+         
+         window.location.href = privacyUrl;
+       });
+     });
+     
+     // Event listeners para TODOS los botones Cookies
+     allCookiesBtns.forEach((btn, index) => {
+       // console.log(`Añadiendo event listener a Cookies button ${index}`);
+       btn.addEventListener('click', (e) => {
+         // console.log(`CLICK EN COOKIES BUTTON ${index} DETECTADO!`);
+         e.preventDefault();
+         e.stopPropagation();
+         
+         if (window['openModal']) {
+           window['openModal'](modalContent.cookies.title, modalContent.cookies.content);
+         } else {
+           console.error('openModal function not found');
+         }
+       });
+     });
+    
+    // console.log('Todos los event listeners de botones configurados correctamente');
+  });
+</script>

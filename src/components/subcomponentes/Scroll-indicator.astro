@@ -1,0 +1,37 @@
+---
+// Scroll Indicator Component
+---
+
+<div class="scroll-indicator bottom-[15dvh]">
+  <div class="w-6 h-10 border-2 border-white rounded-full flex justify-center" style="background-color: rgba(255,255,255,0.2); overfow: hidden;">   
+    <div class="w-1 h-3 bg-white rounded-full mt-2"></div>
+  </div>
+</div>
+
+<style>
+  .scroll-indicator {
+    position: fixed;
+    /* bottom: 7rem; */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 900;
+    cursor: pointer;
+    animation: scrolldown 1.3s infinite;
+
+  }
+
+  @keyframes scrolldown {
+    0% {
+      transform: translateX(-50%) translateY(30%);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateX(-50%) translateY(0%);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateX(-50%) translateY(30%);
+      opacity: 0.7;
+    }
+  }
+</style>

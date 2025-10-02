@@ -1,0 +1,356 @@
+---
+// MediaSection.astro - Componente para mostrar galerías de fotos y videos de YouTube
+import AnimatedBg from '../subcomponentes/AnimatedBg.astro';
+import MediaLightbox from '../subcomponentes/MediaLightbox.astro';
+const { translations } = Astro.props;
+
+// Datos reales para la galería multimedia
+const mediaGallery = {
+  photos: [
+    { src: '/assets/img/media/Abraxas2.webp', alt: 'Abraxas', caption: 'Abraxas Club', date: '2023-10-15' },
+    { src: '/assets/img/media/Decadance1.webp', alt: 'Decadance', caption: 'Decadance Party', date: '2023-09-20' },
+    { src: '/assets/img/media/Decadance2_optimized.webp', alt: 'Decadance 2', caption: 'Decadance Night', date: '2023-08-30' },
+    { src: '/assets/img/media/Decadance3.webp', alt: 'Decadance 3', caption: 'Decadance Festival', date: '2023-07-15' },
+    { src: '/assets/img/media/PrideGranCanarias1.webp', alt: 'Pride Gran Canarias', caption: 'Pride Gran Canarias', date: '2023-06-10' },
+    { src: '/assets/img/media/PrideGranCanarias2.webp', alt: 'Pride Gran Canarias 2', caption: 'Pride Gran Canarias Festival', date: '2023-05-20' },
+    { src: '/assets/img/media/SitgesPride1.webp', alt: 'Sitges Pride', caption: 'Sitges Pride', date: '2023-04-15' },
+    { src: '/assets/img/media/SitgesPride2_optimized.webp', alt: 'Sitges Pride 2', caption: 'Sitges Pride Festival', date: '2023-03-10' },
+    { src: '/assets/img/media/SitgesPride4.webp', alt: 'Sitges Pride 4', caption: 'Sitges Pride Night', date: '2023-02-20' },
+    { src: '/assets/img/media/sitgesPride3.webp', alt: 'Sitges Pride 3', caption: 'Sitges Pride Party', date: '2023-01-15' },
+    { src: '/assets/img/media/Sixpaczone1.webp', alt: 'Sixpaczone', caption: 'Sixpaczone Event', date: '2022-12-10' },
+    { src: '/assets/img/media/Sixpaczone2_optimized.webp', alt: 'Sixpaczone 2', caption: 'Sixpaczone Party', date: '2022-11-20' },
+    { src: '/assets/img/media/Sixpaczone4.webp', alt: 'Sixpaczone 4', caption: 'Sixpaczone Night', date: '2022-10-15' },
+    { src: '/assets/img/media/privilege1.webp', alt: 'Privilege', caption: 'Privilege Club', date: '2022-09-10' }
+  ],
+  videos: [
+    { 
+      id: '3CJOX4v3hww', 
+      thumbnail: 'https://i.ytimg.com/vi/3CJOX4v3hww/hqdefault.jpg', 
+      title: 'sixpakzone2015videobajaryoutube com', 
+      date: '2020-04-06',
+      duration: '1:35' 
+    },
+    { 
+      id: 'L_NqmQPf1Mw', 
+      thumbnail: 'https://i.ytimg.com/vi/L_NqmQPf1Mw/hqdefault.jpg', 
+      title: 'CLUB MERCI CUMPLEAÑOS Dj JOBANI 2010', 
+      date: '2010-11-02',
+      duration: '9:11' 
+    },
+    { 
+      id: '0dSI9i1G3dc', 
+      thumbnail: 'https://i.ytimg.com/vi/0dSI9i1G3dc/hqdefault.jpg', 
+      title: 'UP THE MADS (MERCI)', 
+      date: '2012-04-18',
+      duration: '6:11' 
+    },
+    { 
+      id: 'kflSAKOMs70', 
+      thumbnail: 'https://i.ytimg.com/vi/kflSAKOMs70/hqdefault.jpg', 
+      title: 'CHIWAS @ L´ATLANTIDA AGOSTO 2009', 
+      date: '2009-09-11',
+      duration: '5:40' 
+    },
+    { 
+      id: 'pGlbwId_YI4', 
+      thumbnail: 'https://i.ytimg.com/vi/pGlbwId_YI4/hqdefault.jpg', 
+      title: 'MR.CHIWAS @ L\' ATLANTIDA', 
+      date: '2011-08-26',
+      duration: '14:41' 
+    }
+  ]
+};
+---
+
+<section id="media" class="bg-gradient-to-br from-purple-600 to-indigo-800 text-white overflow-hidden flex flex-col justify-center" style="min-height: calc(100vh - 140px);">
+   <!-- Fondo animado -->
+     <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 10;" />   
+  <div class="relative w-screen mx-auto px-0" style="z-index: 5;">
+    <h2 class="text-3xl xs:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 xs:mb-3 sm:mb-4 text-center">
+      {translations && translations.media ? translations.media.title : 'MEDIA'}
+    </h2>
+    
+    <!-- Contenido de Fotos (visible por defecto) -->
+    <div id="content-photos" class="w-[90vw] mx-auto mb-2 xs:mb-3">
+      <!-- Carousel de fotos responsive -->
+      <div class="relative w-full">
+        <!-- Botones de navegación -->
+        <button id="prevPhotoBtn" class="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white p-1 xs:p-2 rounded-r-lg hover:bg-black/70 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-6 xs:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button id="nextPhotoBtn" class="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white p-1 xs:p-2 rounded-l-lg hover:bg-black/70 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-6 xs:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        
+        <!-- Contenedor del carousel -->
+        <div class="overflow-hidden w-full">
+          <div id="photoCarousel" class="flex transition-transform duration-300 ease-in-out w-full">
+            {mediaGallery.photos.map((photo, index) => (
+              <div class="w-full xs:w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 flex-shrink-0 p-1 md:p-2">
+                <div 
+                  class="media-item block bg-black/20 rounded-lg overflow-hidden group transition-transform hover:scale-105 cursor-pointer h-full"
+                  data-index={index}
+                  data-type="photo"
+                  data-src={photo.src}
+                  data-title={photo.caption}
+                  data-description={photo.date}
+                >
+                  <div class="relative pb-[64%] xs:pb-[55%] sm:pb-[65%] md:pb-[70%] lg:pb-[76%]">
+                    <img 
+                      src={photo.src} 
+                      alt={photo.alt} 
+                      class="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div class="absolute top-1 xs:top-2 right-1 xs:right-2 bg-black/60 text-white text-[10px] xs:text-xs px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full">
+                      {translations && translations.media ? translations.media.photoLabel : 'Foto'}
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2 xs:p-3">
+                      <p class="text-sm xs:text-base sm:text-lg text-white font-medium">{photo.caption}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Carousel de Videos de YouTube -->
+    <div class="w-[90vw] mx-auto mb-2 xs:mb-3">
+      <div class="relative w-full">
+        <!-- Botones de navegación -->
+        <button id="prevVideoBtn" class="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white p-1 xs:p-2 rounded-r-lg hover:bg-black/70 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-6 xs:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button id="nextVideoBtn" class="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 text-white p-1 xs:p-2 rounded-l-lg hover:bg-black/70 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-6 xs:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+        
+        <!-- Contenedor del carousel -->
+        <div class="overflow-hidden w-full">
+          <div id="videoCarousel" class="flex transition-transform duration-300 ease-in-out w-full">
+            {mediaGallery.videos.map((video, index) => (
+              <div class="w-full xs:w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 flex-shrink-0 p-1 md:p-2">
+                <a 
+                  href="#" 
+                  class="block bg-black/20 rounded-lg overflow-hidden group transition-transform hover:scale-105 video-item h-full"
+                  data-index={index}
+                  data-video-id={video.id}
+                  data-title={video.title}
+                  data-date={video.date}
+                >
+                  <div class="relative pb-[64%] xs:pb-[55%] sm:pb-[65%] md:pb-[70%] lg:pb-[76%]">
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title} 
+                      class="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div class="absolute top-1 xs:top-2 right-1 xs:right-2 bg-black/60 text-white text-[10px] xs:text-xs px-1.5 xs:px-2 py-0.5 xs:py-1 rounded-full">
+                      {translations && translations.media ? translations.media.videoLabel : 'Video'}
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <div class="bg-white/20 hover:bg-white/30 rounded-full p-2 xs:p-3 backdrop-blur-sm transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-6 xs:w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2 xs:p-3">
+                      <div>
+                        <p class="text-xs xs:text-sm text-white line-clamp-2 mb-0.5 xs:mb-1">{video.title}</p>
+                        <p class="text-[10px] xs:text-xs text-gray-300">{video.duration}</p>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Enlace a más contenido -->
+    <div class="text-center mt-2 xs:mt-3 sm:mt-4 mb-2 xs:mb-3 sm:mb-4">
+      <a 
+        href="https://www.youtube.com/channel/TUCANALAQUI" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="inline-flex items-center gap-1 xs:gap-2 bg-white/10 hover:bg-white/20 text-white px-4 xs:px-6 py-1.5 xs:py-2 rounded-full transition-colors text-sm xs:text-base"
+      >
+        <svg xmlns="https://www.youtube.com/@cardonatoro" class="h-4 w-4 xs:h-5 xs:w-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+        </svg>
+        {translations && translations.media ? translations.media.viewMoreOnYoutube : 'Ver más en YouTube'}
+      </a>
+    </div>
+  </div>
+  
+  <!-- Componente reutilizable de lightbox -->
+  <MediaLightbox id="photoLightbox" />
+  <MediaLightbox id="videoLightbox" />
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Configurar navegación del carousel de fotos
+    const photoCarousel = document.getElementById('photoCarousel');
+    const prevPhotoBtn = document.getElementById('prevPhotoBtn');
+    const nextPhotoBtn = document.getElementById('nextPhotoBtn');
+    
+    if (photoCarousel && prevPhotoBtn && nextPhotoBtn) {
+      let photoPosition = 0;
+      const getPhotoItemsPerView = () => {
+        const width = window.innerWidth;
+        if (width < 640) return 1; // xs
+        if (width < 768) return 2; // sm
+        if (width < 1024) return 3; // md
+        if (width < 1280) return 4; // lg
+        return 5; // xl y superior
+      };
+      
+      const movePhotoCarousel = (direction) => {
+        const itemsPerView = getPhotoItemsPerView();
+        const totalItems = document.querySelectorAll('#photoCarousel > div').length;
+        const maxPosition = Math.max(0, totalItems - itemsPerView);
+        
+        if (direction === 'prev') {
+          photoPosition = Math.max(0, photoPosition - 1);
+        } else {
+          photoPosition = Math.min(maxPosition, photoPosition + 1);
+        }
+        
+        const translateValue = -(photoPosition * (100 / itemsPerView));
+        photoCarousel.style.transform = `translateX(${translateValue}%)`;
+      };
+      
+      prevPhotoBtn.addEventListener('click', () => movePhotoCarousel('prev'));
+      nextPhotoBtn.addEventListener('click', () => movePhotoCarousel('next'));
+      
+      // Ajustar carousel al cambiar el tamaño de la ventana
+      window.addEventListener('resize', () => {
+        // Reiniciar posición
+        photoPosition = 0;
+        photoCarousel.style.transform = 'translateX(0)';
+      });
+    }
+    
+    // Elementos interactivos
+    const mediaItems = document.querySelectorAll('.media-item');
+    const videoItems = document.querySelectorAll('.video-item');
+    
+    // Configurar eventos para abrir lightbox de fotos
+    mediaItems.forEach((item, index) => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const type = item.dataset.type;
+        const src = item.dataset.src;
+        const title = item.dataset.title;
+        const description = item.dataset.description;
+        
+        // Crear array de todas las fotos para navegación
+        const allPhotos = Array.from(document.querySelectorAll('.media-item[data-type="photo"]')).map(photo => ({
+          src: photo.dataset.src,
+          title: photo.dataset.title,
+          description: photo.dataset.description
+        }));
+        
+        // Guardar el índice actual y todas las fotos en el objeto window para navegación
+        window.currentPhotoIndex = index;
+        window.allPhotos = allPhotos;
+        
+        // Usar la función global expuesta por el componente MediaLightbox
+        if (window.openphotoLightbox && type === 'photo') {
+          window.openphotoLightbox(src, 'image', title, description, null, null);
+        }
+      });
+    });
+    
+    // Configurar eventos para abrir lightbox de videos
+    videoItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const videoId = item.dataset.videoId;
+        const title = item.dataset.title;
+        const date = item.dataset.date;
+        const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        const externalLink = `https://www.youtube.com/watch?v=${videoId}`;
+        
+        // Pausar la música si está reproduciéndose
+        if (window.widget && typeof window.widget.pause === 'function') {
+          window.widget.pause();
+        }
+        
+        // Usar la función global expuesta por el componente MediaLightbox
+        if (window.openvideoLightbox) {
+          window.openvideoLightbox(videoUrl, 'video', title, date, externalLink, 'Ver en YouTube');
+        }
+      });
+    });
+    
+    // Configurar navegación del carousel de videos
+    const videoCarousel = document.getElementById('videoCarousel');
+    const prevVideoBtn = document.getElementById('prevVideoBtn');
+    const nextVideoBtn = document.getElementById('nextVideoBtn');
+    
+    if (videoCarousel && prevVideoBtn && nextVideoBtn) {
+      let videoPosition = 0;
+      const getItemsPerView = () => {
+        const width = window.innerWidth;
+        if (width < 640) return 1; // xs
+        if (width < 768) return 2; // sm
+        if (width < 1024) return 3; // md
+        if (width < 1280) return 4; // lg
+        return 5; // xl y superior
+      };
+      
+      const moveVideoCarousel = (direction) => {
+        const itemsPerView = getItemsPerView();
+        const totalItems = videoItems.length;
+        const maxPosition = Math.max(0, totalItems - itemsPerView);
+        
+        if (direction === 'prev') {
+          videoPosition = Math.max(0, videoPosition - 1);
+        } else {
+          videoPosition = Math.min(maxPosition, videoPosition + 1);
+        }
+        
+        const translateValue = -(videoPosition * (100 / itemsPerView));
+        videoCarousel.style.transform = `translateX(${translateValue}%)`;
+      };
+      
+      prevVideoBtn.addEventListener('click', () => moveVideoCarousel('prev'));
+      nextVideoBtn.addEventListener('click', () => moveVideoCarousel('next'));
+      
+      // Ajustar carousel al cambiar el tamaño de la ventana
+      window.addEventListener('resize', () => {
+        // Reiniciar posición
+        videoPosition = 0;
+        videoCarousel.style.transform = 'translateX(0)';
+      });
+    }
+    
+    // Ajustar carousels en cambio de tamaño de ventana
+    window.addEventListener('resize', () => {
+      // Reiniciar posiciones y actualizar vistas
+      if (photoCarousel) {
+        photoPosition = 0;
+        photoCarousel.style.transform = 'translateX(0)';
+      }
+      if (videoCarousel) {
+        videoPosition = 0;
+        videoCarousel.style.transform = 'translateX(0)';
+      }
+    });
+  });
+</script>

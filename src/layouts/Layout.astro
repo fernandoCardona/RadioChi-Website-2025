@@ -1,0 +1,407 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Modal from '../components/subcomponentes/Modal.astro';
+import { getLangFromUrl, useTranslations, locales } from '../i18n/utils';
+import { seoTranslations } from '../i18n/seo-translations.js';
+
+const { title } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const SITE = 'https://radiochi.com';
+const canonicalUrl = new URL(Astro.url.pathname + Astro.url.search, SITE).toString();
+const altLinks = locales.map((l) => ({
+  lang: l,
+  href: new URL(l === 'es' ? '/' : `/${l}/`, SITE).toString()
+}));
+
+// Obtener descripción SEO directamente del objeto de traducciones
+const seoDescription = seoTranslations[lang]?.description || seoTranslations['es'].description;
+const seoKeywords = seoTranslations[lang]?.keywords || seoTranslations['es'].keywords;
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={seoDescription} />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+		<link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+		<link rel="stylesheet" href="/assets/fonts/Inter/style.css" />
+		<title>{title}</title>
+		<link rel="canonical" href={canonicalUrl} />
+		{altLinks.map((l) => (<link rel="alternate" hreflang={l.lang} href={l.href} />))}
+		<link rel="alternate" hreflang="x-default" href={`${SITE}/`} />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={seoDescription} />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:image" content={`${SITE}/OG.png`} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={seoDescription} />
+		<meta name="twitter:image" content={`${SITE}/OG.png`} />
+		<meta name="keywords" content={seoKeywords} />
+		
+		<!-- Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-0E2TY3L257"></script>
+		<script is:inline>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){window.dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', 'G-0E2TY3L257');
+			
+			// Función para trackear visitas a secciones
+			window.trackSectionView = function(sectionName) {
+				if (typeof gtag === 'function') {
+					gtag('event', 'section_view', {
+						'section_name': sectionName,
+						'event_category': 'navigation',
+						'event_label': sectionName
+					});
+					console.log('📊 Analytics: Sección visitada -', sectionName);
+				}
+			};
+		</script>
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			}
+			
+			* {
+				box-sizing: border-box;
+			}
+			
+			/* Ocultar barra de scroll pero mantener funcionalidad */
+			html, body {
+				scrollbar-width: none; /* Firefox */
+				-ms-overflow-style: none; /* Internet Explorer 10+ */
+			}
+			
+			html::-webkit-scrollbar, body::-webkit-scrollbar {
+				display: none; /* Safari and Chrome */
+			}
+		</style>
+		<meta name="theme-color" content="#000000" />
+		<meta name="msapplication-TileColor" content="#000000" />
+		<link rel="manifest" href="/manifest.json" />
+	</head>
+	<body style="display: block !important; visibility: visible !important; opacity: 1 !important;">
+		<!-- Loader fullscreen -->
+		<div id="loader-container" class="fixed inset-0 w-full h-full flex items-center justify-center z-50">
+			<div class="loader-content text-center">
+				<!-- <div class="spinner w-20 h-20 border-4 border-t-white border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin mx-auto mb-6"></div> -->
+				<div class="w-full flex justify-center items-center opacity-0 transition-opacity duration-1000 mb-4" id="loading-logo">
+					<div class="w-[220px] lg:w-[250px] flex justify-center items-center">
+						<img src="/assets/img/logos/RC_Logo_negative_rainbow.png" alt="RadioChi Logo" class="w-full h-auto animate-heartbeat ">
+					</div>
+				</div>
+				<div class="loading-progress w-64 h-1 bg-gray-800 mx-auto mt-8 overflow-hidden rounded-full">
+					<div class="progress-bar h-full bg-white w-0 transition-all duration-300 rounded-full"></div>
+				</div>
+				<div class="loading-percentage font-family-inter font-bold text-white text-lg mt-2 opacity-95">0%</div>
+			</div>
+		</div>
+		
+		<!-- Capa de desenfoque que cubre toda la página -->
+		<div id="blur-overlay" class="fixed inset-0 w-full h-full z-40 pointer-events-none"></div>
+		
+		<style>
+			@keyframes blur-in {
+				0% {
+					filter: blur(12px);
+					opacity: 0;
+				}
+				100% {
+					filter: blur(0px);
+					opacity: 1;
+				}
+			}
+			
+			@keyframes heartbeat {
+				0% {
+					transform: scale(1);
+				}
+				25% {
+					transform: scale(1.05);
+				}
+				40% {
+					transform: scale(1);
+				}
+				60% {
+					transform: scale(1.05);
+				}
+				100% {
+					transform: scale(1);
+				}
+			}
+			
+			#loader-container {
+				background-color: rgba(0, 0, 0, 0.5);
+				backdrop-filter: blur(5px);
+			}
+			
+			.loader-content {
+				animation: blur-in 0.8s ease-out forwards;
+				animation-delay: 0.2s;
+				opacity: 0;
+			}
+			
+			.animate-heartbeat {
+				animation: heartbeat 1.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+			}
+			
+			#blur-overlay {
+				backdrop-filter: blur(30px);
+				transition: backdrop-filter 0.8s ease-out;
+			}
+			
+			body.loaded #blur-overlay {
+				backdrop-filter: blur(0px);
+			}
+		</style>
+		
+		<!-- Script para controlar el loader y solucionar el problema de AudioContext -->
+		<script>
+			// Asegurar que la página siempre se cargue desde el inicio
+			window.onbeforeunload = function() {
+				window.scrollTo(0, 0);
+			};
+
+			// Inicializar el loader
+			document.addEventListener('DOMContentLoaded', () => {
+				// Forzar scroll al inicio de la página
+				window.scrollTo(0, 0);
+				
+				// Preparar función para crear AudioContext bajo demanda
+				try {
+					window.createAndResumeAudioContext = function() {
+						if (!window.pendingAudioContext) {
+							try {
+								const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+								window.pendingAudioContext = new AudioContextClass();
+								console.log('AudioContext creado correctamente');
+							} catch (e) {
+								console.error('Error al crear AudioContext:', e);
+								return null;
+							}
+						}
+						
+						if (window.pendingAudioContext && window.pendingAudioContext.state === 'suspended') {
+							window.pendingAudioContext.resume().then(() => {
+								console.log('AudioContext reanudado correctamente');
+							}).catch(err => {
+								console.error('Error al reanudar AudioContext:', err);
+							});
+						}
+						
+						return window.pendingAudioContext;
+					};
+					
+					console.log('Funciones de AudioContext preparadas correctamente');
+				} catch (e) {
+					console.error('Error al configurar AudioContext:', e);
+				}
+				
+				const loaderContainer = document.getElementById('loader-container');
+				const loadingLogo = document.getElementById('loading-logo');
+				const progressBar = document.querySelector('.progress-bar');
+				
+				// Mostrar el logo después de un breve retraso
+				setTimeout(() => {
+					loadingLogo.style.opacity = '1';
+				}, 300);
+				
+				// Simular progreso de carga
+				let progress = 0;
+				const percentageElement = document.querySelector('.loading-percentage');
+				const blurOverlay = document.getElementById('blur-overlay');
+				
+				// Función para mapear un rango de números a otro rango
+				const scale = (num, inMin, inMax, outMin, outMax) => {
+					return ((num - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+				};
+				
+				// Establecer un tiempo exacto de 3 segundos para el loader
+				const maxLoaderTime = 3000; // 3 segundos
+				const startTime = Date.now();
+				
+				const interval = setInterval(() => {
+					// Calcular el tiempo transcurrido
+					const elapsedTime = Date.now() - startTime;
+					const timeProgress = Math.min(elapsedTime / maxLoaderTime, 1);
+					
+					// Asegurar que el progreso avance según el tiempo transcurrido
+					// pero nunca llegue al 100% antes de los 3 segundos
+					progress = timeProgress * 100;
+					
+					if (progress > 100) progress = 100;
+					
+					const roundedProgress = Math.floor(progress);
+					progressBar.style.width = roundedProgress + '%';
+					percentageElement.textContent = roundedProgress + '%';
+					
+					// Reducir gradualmente el desenfoque a medida que avanza la carga
+					const blurAmount = scale(roundedProgress, 0, 100, 30, 0);
+					blurOverlay.style.backdropFilter = `blur(${blurAmount}px)`;
+					
+					// Finalizar exactamente cuando se alcancen los 3 segundos
+					if (elapsedTime >= maxLoaderTime) {
+						clearInterval(interval);
+						
+						// Asegurar que la barra de progreso esté completa
+						progressBar.style.width = '100%';
+						percentageElement.textContent = '100%';
+						blurOverlay.style.backdropFilter = 'blur(0px)';
+						
+						// Ocultar el loader
+						setTimeout(() => {
+							loaderContainer.style.opacity = '0';
+							loaderContainer.style.transition = 'opacity 0.5s ease';
+							document.body.classList.add('loaded');
+							
+							setTimeout(() => {
+								loaderContainer.style.display = 'none';
+							}, 500);
+						}, 0); // Sin retraso adicional para mantener exactamente 3 segundos
+					}
+				}, 30); // Actualización más frecuente para animación más suave
+				
+				// Marcar que el usuario ha interactuado con la página
+				window.userHasInteracted = false;
+				
+				// Función para manejar la primera interacción del usuario
+				function handleUserInteraction() {
+					if (!window.userHasInteracted) {
+						window.userHasInteracted = true;
+						
+						// Notificar a todos los componentes que el usuario ha interactuado
+						const event = new CustomEvent('userInteraction');
+						document.dispatchEvent(event);
+						
+						// Si hay música lista para reproducir, iniciarla
+						if (window.musicReadyToPlay && typeof window.playMusic === 'function') {
+							window.playMusic();
+						}
+						
+						// Si hay un contexto de audio pendiente, iniciarlo
+						if (window.pendingAudioContext) {
+							window.pendingAudioContext.resume().then(() => {
+								console.log('AudioContext iniciado después de interacción del usuario');
+							});
+						}
+					}
+				}
+				
+				// Escuchar eventos de interacción del usuario
+				['click', 'touchstart', 'scroll', 'keydown'].forEach(eventType => {
+					document.addEventListener(eventType, handleUserInteraction, { once: false });
+				});
+			});
+		</script>
+
+		<!-- Script global de control de logs de depuración -->
+		<script>
+			// @ts-nocheck
+			// Bandera global para controlar logs de depuración
+			window.DEV_LOGS = false; // Desactivado por defecto en producción
+		</script>
+		
+		<!-- Script de gestión de cookies de idioma -->
+		<script>
+			// @ts-nocheck
+			
+			// Funciones de gestión de cookies
+			function detectBrowserLanguage() {
+				const availableLanguages = ['es', 'en', 'ca', 'fr', 'it', 'de'];
+				const browserLang = navigator.language.split('-')[0];
+				return availableLanguages.includes(browserLang) ? browserLang : 'en';
+			}
+			
+			function getCurrentLangFromCookie() {
+				const cookies = document.cookie.split(';');
+				const currentLangCookie = cookies.find(cookie => cookie.trim().startsWith('currentLang='));
+				
+				if (currentLangCookie) {
+					return currentLangCookie.split('=')[1];
+				}
+				
+				return null;
+			}
+			
+			function setCurrentLangCookie(lang) {
+				const availableLanguages = ['es', 'en', 'ca', 'fr', 'it', 'de'];
+				const validLang = availableLanguages.includes(lang) ? lang : 'en';
+				
+				const expirationDate = new Date();
+				expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+				
+				document.cookie = `currentLang=${validLang}; expires=${expirationDate.toUTCString()}; path=/; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+			}
+			
+			// Función para gestionar redirección inicial
+			function handleInitialLanguageRedirection() {
+				const currentPath = window.location.pathname;
+				let currentLang = getCurrentLangFromCookie();
+				
+				// Si no hay cookie, es primera visita
+				if (!currentLang) {
+					currentLang = detectBrowserLanguage();
+					setCurrentLangCookie(currentLang);
+					// console.log('🌐 Primera visita - Idioma detectado:', currentLang);
+				}
+				
+				// REDIRECCIÓN DESACTIVADA TEMPORALMENTE PARA PRUEBAS
+				/*
+				// Si estamos en la raíz del sitio
+				if (currentPath === '/' || currentPath === '/index.html') {
+					// Redirigir al idioma de la cookie si no es español
+					if (currentLang !== 'es') {
+						window.location.href = `/${currentLang}/`;
+					}
+				} else {
+					// Si ya estamos en una ruta de idioma, verificar consistencia
+					const langMatch = currentPath.match(/^\/(ca|en|fr|it|de)\//); 
+					if (langMatch) {
+						const urlLang = langMatch[1];
+						// Actualizar cookie si la URL tiene un idioma diferente
+						if (urlLang !== currentLang) {
+							setCurrentLangCookie(urlLang);
+						}
+					} else {
+						// Estamos en español (ruta raíz)
+						if (currentLang !== 'es') {
+							setCurrentLangCookie('es');
+						}
+					}
+				}
+				*/
+			}
+			
+			// Escuchar cambios de idioma
+			window.addEventListener('languageChanged', function(event) {
+				const newLang = event.detail.language;
+				setCurrentLangCookie(newLang);
+				// console.log('🔄 Cookie actualizada desde Layout:', newLang);
+			});
+			
+			// Ejecutar al cargar la página
+			document.addEventListener('DOMContentLoaded', handleInitialLanguageRedirection);
+		</script>
+		<Header />
+		<slot />
+		<Footer />
+		<!-- Modal Component -->
+		<Modal />
+	</body>
+</html>

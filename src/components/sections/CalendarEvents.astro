@@ -1,0 +1,481 @@
+---
+// CalendarEvents.astro - Componente para mostrar el calendario de eventos
+import { getLangFromUrl } from '../../i18n/utils';
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import AnimatedBg from '../subcomponentes/AnimatedBg.astro';
+
+const { translations } = Astro.props;
+const lang = getLangFromUrl(Astro.url);
+
+// Importar datos de eventos unificados
+import calendarEventsData from '../../data/calendarevents.json';
+
+// Obtener traducciones del archivo unificado
+const t = (key) => {
+  const keys = key.split('.');
+  if (keys[0] === 'calendarEvents') {
+    const translationKey = keys[1];
+    return calendarEventsData.translations[lang]?.[translationKey] || calendarEventsData.translations['en'][translationKey];
+  }
+  return '';
+};
+
+// Obtener eventos y ordenarlos por fecha (más cercanos primero)
+const sortedEvents = [...calendarEventsData.events].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+// Formatear fecha según el idioma
+function formatDate(dateString, lang) {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = getMonthName(date.getMonth(), lang);
+  const year = date.getFullYear();
+  
+  return `${day} ${month} ${year}`;
+}
+
+// Función para obtener el nombre del mes según el idioma
+function getMonthName(monthIndex, lang) {
+  const months = {
+    en: [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ],
+    es: [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ],
+    ca: [
+      'Gener', 'Febrer', 'Març', 'Abril', 'Maig', 'Juny',
+      'Juliol', 'Agost', 'Setembre', 'Octubre', 'Novembre', 'Desembre'
+    ],
+    fr: [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ],
+    it: [
+      'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    ],
+    de: [
+      'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+    ]
+  };
+  
+  return months[lang][monthIndex];
+}
+
+// Función para obtener el día del mes
+function getDay(dateString) {
+  return new Date(dateString).getDate();
+}
+
+// Función para obtener el mes abreviado
+function getMonth(dateString, lang) {
+  const monthsArray = {
+    'en': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    'es': ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+    'ca': ['Gen', 'Feb', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Des'],
+    'fr': ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+    'it': ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
+    'de': ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+  }[lang] || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  return monthsArray[new Date(dateString).getMonth()];
+}
+---
+
+<section id="calendar" class="relative py-22 md:py-24 overflow-hidden h-screen" aria-labelledby="events-title">
+  <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 5;" />
+  
+  <!-- Imagen de fondo -->
+  <div class="absolute inset-0 w-full h-full z-10">
+    <div 
+      class="absolute inset-0 w-full h-full"
+      style="background-image: url('/assets/img/bg/PrideGranCanarias2Bg.webp'); background-size: cover; background-position: center;"
+    >
+      <div class="absolute inset-0 bg-black/60"></div>
+    </div>
+  </div>
+  
+  <div class="container mx-auto px-4 relative z-10 h-full flex flex-col">
+    <h2 id="events-title" class="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-2 md:mb-4 text-white" set:html={t('calendarEvents.title')}></h2>
+    
+    {sortedEvents.length > 0 ? (
+      <div class="event-list space-y-2 md:space-y-4 flex-grow overflow-hidden flex flex-col">
+        <div class="overflow-y-auto pr-0 pb-2 flex-grow events-scroll-container relative" tabindex="0" aria-label={t('calendarEvents.title')}>
+          {/* Indicador de scroll */}
+          <div class="scroll-indicator absolute bottom-0 left-1/2 transform -translate-x-1/2 mb-2 flex flex-col items-center text-white opacity-80 md:hidden">
+            <span class="text-xs mb-1">Scroll para ver más</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+          
+          {sortedEvents.map((event, index) => {
+            // Obtener el país traducido si existe
+            const translatedCountry = calendarEventsData.translations[lang]?.country?.[event.country] || event.country;
+            
+            return (
+              <div class="event-card w-full max-w-[95%] mx-auto bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:shadow-2xl mb-2" data-index={index} role="article" aria-labelledby={`event-title-${index}`}>
+                <div class="flex flex-row items-center p-1 md:p-2">
+                  <div class="w-auto min-w-[40px] md:min-w-[68px] lg:min-w-[58px] flex items-center justify-center">
+                    <img 
+                      src={event.logo} 
+                      alt={`Logo de ${event.title}`} 
+                      class="w-auto max-h-[35px] xs:max-h-[32px] md:max-h-[50px] lg:max-h-[45px] object-contain"
+                    />
+                  </div>
+                  
+                  <div class="flex-grow flex flex-col px-2">
+                    <h3 id={`event-title-${index}`} class="text-base md:text-xl lg:text-base font-bold text-white leading-tight line-clamp-2 lg:line-clamp-1">{event.title}</h3>
+                    
+                    <p class="text-gray-400 text-xs md:text-sm lg:text-xs mr-1">
+                      {(event.dateStart.trim() === "" || event.dateEnd.trim() === "") ? 
+                        t('calendarEvents.datesComingSoon') : 
+                        <><time datetime={event.dateStart}>{event.dateStart}</time> - <time datetime={event.dateEnd}>{event.dateEnd}</time></>
+                      }
+                    </p>
+                    
+                    <div class="flex flex-wrap items-start">
+                      <div class="w-full">
+                        <p class="text-gray-300 text-xs md:text-sm lg:text-xs">{event.location}, {translatedCountry}</p>
+                      </div>
+                    </div>
+                    
+
+                  </div>
+                  
+                  <div class="flex items-center pl-2">
+                    <a 
+                      href={event.linkEvent} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      class="flex justify-center items-centerh-[20px] px-2 md:px-3 py-3 bg-red-600 text-white rounded-full font-medium hover:bg-red-700 transition-colors whitespace-nowrap"
+                      aria-label={`${t('calendarEvents.buyTickets')} ${event.title}`}
+                    >
+                      <span class="text-xs leading-1 md:text-sm inline">{t('calendarEvents.buyTickets')}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {sortedEvents.length <= 8 && (
+            <div class="w-full flex justify-center items-center mt-10">
+              <span class="text-xs leading-4 md:text-sm text-white border border-white rounded-md px-4 py-2">{t('calendarEvents.moreDatesComingSoon')}</span> 
+            </div>
+          )}
+        </div>
+        
+      </div>
+    ) : (
+      <div class="text-center py-16">
+        <div class="text-2xl md:text-3xl font-bold text-white mb-4">
+          <span>{t('calendarEvents.noEvents')}</span>
+        </div>
+        <div class="w-24 h-1 bg-red-600 mx-auto"></div>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  // Animación escalonada para las tarjetas de eventos
+  document.addEventListener('DOMContentLoaded', () => {
+    const eventCards = document.querySelectorAll('.event-card');
+    const scrollContainer = document.querySelector('.events-scroll-container');
+    const section = document.getElementById('events');
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    let scrollCompletedFlag = false;
+    let isScrollingInternally = false;
+    let lastScrollTop = 0;
+    let scrollTimeout;
+    let touchStartY = 0;
+    let scrollEnabled = false; // Variable para controlar si el scroll está habilitado
+    
+    // Función para animar las tarjetas
+    function animateCards() {
+      eventCards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add('animate-in');
+        }, 150 * index);
+      });
+    }
+    
+    // Animar las tarjetas inmediatamente al cargar la página
+    animateCards();
+    
+    // Asegurar que el scroll comience en la parte superior
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+    }
+    
+    // Habilitar el scroll después de un retraso
+    setTimeout(() => {
+      // Asegurar nuevamente que estamos en la parte superior
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0;
+      }
+      scrollEnabled = true;
+    }, 2000); // 2 segundos de retraso
+    
+    // Función para verificar si el scroll ha llegado al final
+    function checkScrollEnd() {
+      if (!scrollContainer) return false;
+      
+      // Verificar si el scroll ha llegado al final (con un pequeño margen de 5px)
+      return scrollContainer.scrollHeight - scrollContainer.scrollTop <= scrollContainer.clientHeight + 5;
+    }
+    
+    // Función para verificar si el scroll está al inicio
+    function checkScrollStart() {
+      if (!scrollContainer) return false;
+      
+      return scrollContainer.scrollTop <= 5;
+    }
+    
+    // Función para actualizar la visibilidad del indicador de scroll
+    function updateScrollIndicator() {
+      if (!scrollIndicator) return;
+      
+      if (checkScrollEnd()) {
+        scrollIndicator.classList.add('opacity-0');
+      } else {
+        scrollIndicator.classList.remove('opacity-0');
+      }
+    }
+    
+    // Controlamos el evento de scroll para detectar cuando llega al final
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', () => {
+        // Solo procesar el evento si el scroll está habilitado
+        if (!scrollEnabled) {
+          // Si el scroll no está habilitado, resetear la posición al inicio
+          scrollContainer.scrollTop = 0;
+          return;
+        }
+        
+        // Actualizar la bandera de scroll interno
+        isScrollingInternally = true;
+        
+        // Limpiar el timeout anterior si existe
+        clearTimeout(scrollTimeout);
+        
+        // Establecer un nuevo timeout
+        scrollTimeout = setTimeout(() => {
+          isScrollingInternally = false;
+        }, 150);
+        
+        // Guardar la posición actual del scroll
+        lastScrollTop = scrollContainer.scrollTop;
+        
+        // Actualizar el indicador de scroll
+        updateScrollIndicator();
+        
+        // Verificar si ha llegado al final
+        if (checkScrollEnd() && !scrollCompletedFlag) {
+          // Permitimos que se active el cambio de componente solo cuando llegue al final
+          section.classList.add('scroll-completed');
+          scrollCompletedFlag = true;
+        }
+      });
+      
+      // Verificar al inicio por si no hay suficiente contenido para hacer scroll
+      if (checkScrollEnd() && section) {
+        section.classList.add('scroll-completed');
+        scrollCompletedFlag = true;
+        if (scrollIndicator) scrollIndicator.classList.add('opacity-0');
+      }
+    }
+    
+    // Variables para controlar la sensibilidad del scroll
+    let wheelEventCount = 0;
+    const wheelThreshold = 3; // Número de eventos de rueda necesarios para activar el cambio de componente
+    let lastWheelTime = 0;
+    const wheelResetTime = 500; // Tiempo en ms para resetear el contador de eventos
+    
+    // Capturar eventos de rueda para controlar el scroll
+    document.addEventListener('wheel', (event) => {
+      // Solo procesamos el evento si section existe y estamos dentro de la sección de eventos
+      if (section && (section.contains(event.target) || section.contains(document.activeElement))) {
+        // Si estamos en el contenedor de scroll y el scroll está habilitado
+        if (scrollContainer && scrollEnabled) {
+          const currentTime = new Date().getTime();
+          
+          // Resetear contador si ha pasado suficiente tiempo desde el último evento
+          if (currentTime - lastWheelTime > wheelResetTime) {
+            wheelEventCount = 0;
+          }
+          lastWheelTime = currentTime;
+          
+          // Scroll hacia abajo
+          if (event.deltaY > 0) {
+            // Si no hemos llegado al final del scroll interno, prevenimos el cambio de componente
+            if (!checkScrollEnd()) {
+              event.preventDefault();
+              scrollContainer.scrollTop += 30; // Reducido para scroll más suave
+            } 
+            // Si ya llegamos al final pero no se ha marcado como completado
+            else if (!scrollCompletedFlag) {
+              // Incrementar contador de eventos de rueda
+              wheelEventCount++;
+              
+              // Solo activar el cambio después de superar el umbral
+              if (wheelEventCount >= wheelThreshold) {
+                scrollCompletedFlag = true;
+                section.classList.add('scroll-completed');
+              } else {
+                // Prevenir el cambio de componente hasta superar el umbral
+                event.preventDefault();
+              }
+            }
+          } 
+          // Scroll hacia arriba
+          else if (event.deltaY < 0) {
+            // Si no estamos al inicio del scroll interno, prevenimos el cambio de componente
+            if (!checkScrollStart()) {
+              event.preventDefault();
+              scrollContainer.scrollTop -= 30; // Reducido para scroll más suave
+            }
+          }
+        }
+      }
+    }, { passive: false });
+    
+    // Soporte para eventos táctiles (móviles y tablets)
+    if (scrollContainer) {
+      // Evento touchstart
+      scrollContainer.addEventListener('touchstart', (event) => {
+        touchStartY = event.touches[0].clientY;
+      }, { passive: true });
+      
+      // Evento touchmove
+      scrollContainer.addEventListener('touchmove', (event) => {
+        if (!scrollContainer) return;
+        
+        const touchY = event.touches[0].clientY;
+        const touchDiff = touchStartY - touchY;
+        
+        // Scroll hacia abajo (deslizar hacia arriba)
+        if (touchDiff > 0) {
+          // Si no hemos llegado al final, permitimos el scroll interno
+          if (!checkScrollEnd()) {
+            isScrollingInternally = true;
+          } 
+          // Si ya llegamos al final y no se ha marcado como completado
+          else if (!scrollCompletedFlag) {
+            scrollCompletedFlag = true;
+            section.classList.add('scroll-completed');
+          }
+        } 
+        // Scroll hacia arriba (deslizar hacia abajo)
+        else if (touchDiff < 0) {
+          // Si no estamos al inicio, permitimos el scroll interno
+          if (!checkScrollStart()) {
+            isScrollingInternally = true;
+          }
+        }
+        
+        // Actualizar posición inicial para el próximo movimiento
+        touchStartY = touchY;
+      }, { passive: true });
+      
+      // Evento touchend
+      scrollContainer.addEventListener('touchend', () => {
+        // Resetear la bandera después de un breve tiempo
+        setTimeout(() => {
+          isScrollingInternally = false;
+        }, 150);
+      }, { passive: true });
+    }
+    
+    // Capturar eventos de teclado (flechas arriba/abajo)
+    document.addEventListener('keydown', (event) => {
+      // Solo procesamos el evento si estamos dentro de la sección de eventos
+      if (section.contains(document.activeElement) || document.activeElement === document.body) {
+        if (scrollContainer) {
+          // Flecha abajo
+          if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+            if (!checkScrollEnd()) {
+              event.preventDefault();
+              scrollContainer.scrollTop += 40;
+            } 
+            else if (!scrollCompletedFlag) {
+              scrollCompletedFlag = true;
+              section.classList.add('scroll-completed');
+            }
+          } 
+          // Flecha arriba
+          else if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+            if (!checkScrollStart()) {
+              event.preventDefault();
+              scrollContainer.scrollTop -= 40;
+            }
+          }
+        }
+      }
+    }, { passive: false });
+    
+    // Observador de intersección para detectar cuando la sección sale de la vista
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        // Solo permitir el cambio de componente cuando el scroll interno ha llegado al final
+        if (!entry.isIntersecting && scrollCompletedFlag) {
+          // Aquí se activaría el cambio de componente
+          // Esta parte depende de cómo esté implementado el cambio de componente en tu aplicación
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    if (section) {
+      observer.observe(section);
+    }
+    
+    // Inicializar el estado del indicador de scroll
+    updateScrollIndicator();
+  });
+</script>
+
+<style>
+  .event-list {
+    perspective: 1000px;
+  }
+  
+  .event-card {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  
+  .event-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    .event-card img {
+      height: 180px;
+    }
+  }
+
+  /* Estilo personalizado para la barra de desplazamiento */
+  .events-scroll-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .events-scroll-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin: 5px;
+  }
+
+  .events-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+  }
+
+  .events-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+</style>

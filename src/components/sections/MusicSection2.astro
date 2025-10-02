@@ -1,0 +1,2119 @@
+---
+import { getLangFromUrl } from '../../i18n/utils';
+import AnimatedBg from '../subcomponentes/AnimatedBg.astro';
+import Starshine from '../subcomponentes/Starshine.astro';
+import { IoMdVolumeHigh } from "react-icons/io";
+import { IoMdVolumeOff } from "react-icons/io";
+
+const lang = getLangFromUrl(Astro.url);
+
+// Importar traducciones de música
+let musicTranslations;
+try {
+  musicTranslations = await import(`../../i18n/${lang}/music.json`);
+} catch (error) {
+  // Fallback a español si no existe el idioma
+  musicTranslations = await import('../../i18n/es/music.json');
+}
+
+const music = musicTranslations.default;
+---
+
+<section id="music" class="relative w-screen h-[100dvh] overflow-hidden ">
+    <!-- Fondo animado -->
+    <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 5;" /> 
+    
+
+    <!-- Imagen principal (lado izquierdo) -->
+    <div id="main-image-wrapper" class="absolute right-0 w-full sm:w-[80%] lg:w-[65%] h-full rounded-md overflow-hidden z-10 opacity-0" style="transform: translateX(50px);  z-index: 5;">
+      <!-- Imagen con degradado integrado -->
+      <div id="main-image-container" class="w-full h-full relative">
+        <!-- Imagen con degradado integrado -->
+        <div 
+          id="main-image"
+          class="w-full h-full bg-cover bg-center opacity-0 transition-opacity duration-500"
+          style={`
+            background-image: url('${music.tracks[0].image}');
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+          `}
+        ></div>
+        
+        <!-- Overlay sincronizado -->
+        <div 
+          id="image-overlay"
+          class="absolute inset-0 bg-black/40 z-30 pointer-events-auto opacity-0 transition-opacity duration-500"
+          style="
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%); z-index: 6;
+          "
+        ></div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="relative z-10 w-full h-full top-[10%] mx-auto flex flex-col px-10" style="z-index: 10;">
+    
+        <!-- Área superior con imagen principal y contenido -->
+        <div class="relative flex-1 flex">
+
+            <!-- Contenido de texto y reproductor (lado derecho) -->
+            <div class="relative w-full h-[75dvh] sm:h-[80dvh] max-w-7xl mx-auto flex flex-col justify-center items-end space-y-5 z-20 p-0 ">
+
+              <div class="relative w-full h-[50dvh] sm:h-[70dvh] flex flex-col sm:flex-row items-start sm:items-center justify-center sm:justify-start my-0">
+
+                <!-- TITULAR Y SUBTITULAr -->
+                  <div class="absolute w-full sm:w-[60%] h-auto flex flex-col items-start justify-center z-20 ">
+                    <!-- Título principal -->
+                    <div class="w-full mb-1 sm:mb-4 ">
+                      <h1 id="main-title" class="slide-title w-full text-5xl sm:text-7xl md:text-8xl leading-12 sm:leading-18 md:leading-24 font-bold text-transparent [-webkit-text-stroke:2.5px_white] [-webkit-text-fill-color:rgba(255,255,255,0.1)] text-center sm:text-left mb-2 opacity-0">
+                        {music.tracks[0].heroTitle}
+                      </h1>
+                    </div>
+                    
+                    <!-- Descripción del track actual -->
+                    <div class="w-full sm:w-[100%] lg:w-[80%] xl:w-[70%]">
+                      <p id="track-description" class="text-white text-xs sm:text-sm md:text-base lg:text-xl leading-4 sm:leading-5 lg:leading-6 text-center sm:text-left opacity-0" style="visibility: hidden;">
+                        {music.tracks[0].description}
+                      </p>
+                    </div>
+                  </div>
+              </div>
+              
+              <!-- Imagen principal (lado izquierdo) -->
+                  <!-- <div id="main-image-wrapper" class="absolute right-0 w-full sm:w-[80%] lg:w-[65%] h-full rounded-md overflow-hidden z-10 opacity-0" style="transform: translateX(50px);">
+                    <div id="main-image-container" class="w-full h-full relative">
+                    
+                      <div 
+                        id="main-image"
+                        class="w-full h-full bg-cover bg-center opacity-0 transition-opacity duration-500"
+                        style={`
+                          background-image: url('${music.tracks[0].image}');
+                          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+                          mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+                        `}
+                      ></div>
+                      
+                 
+                      <div 
+                        id="image-overlay"
+                        class="absolute inset-0 bg-black/40 z-30 pointer-events-auto opacity-0 transition-opacity duration-500"
+                        style="
+                          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+                          mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+                        "
+                      ></div>
+                    </div>
+                  </div> -->
+              <!-- Reproductor de música -->
+              <div class="relative w-full m-auto flex flex-col items-center justify-center space-y-4 ">
+                  <!-- Player -->
+                  <div id="player-container" class="w-full mx-auto bg-white/10 backdrop-blur-xs border  border-white rounded-lg p-4 relative mb-4 opacity-0" style="transform: translateY(30px);">
+                    <!-- Layout para desktop (>= 640px) -->
+                    <div class="hidden sm:grid grid-cols-3 items-center gap-4 mb-4">
+                      <!-- Información del track -->
+                      <div class="flex flex-col items-start justify-center min-w-0 pr-2">
+                        <h3 id="current-track-title" class="text-white font-bold text-base leading-tight break-words">
+                          {music.tracks[0].title}
+                        </h3>
+                        <p id="current-track-artist" class="text-white/70 text-xs leading-tight break-words">
+                          {music.tracks[0].subtitle}
+                        </p>
+                      </div>
+                      
+                      <!-- Controles de reproducción -->
+                      <div class="flex items-center justify-center space-x-6">
+                        <button id="prev-track-btn-desktop" class="text-white hover:text-pink-300 transition-colors">
+                          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                          </svg>
+                        </button>
+                        <button id="play-pause-btn-desktop" class="text-white hover:text-pink-300 transition-colors">
+                          <svg id="play-icon-desktop" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                          <svg id="pause-icon-desktop" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                          </svg>
+                        </button>
+                        <button id="next-track-btn-desktop" class="text-white hover:text-pink-300 transition-colors">
+                          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                          </svg>
+                        </button>
+                      </div>
+                      
+                      <!-- Tiempo y botones sociales -->
+                      <div class="flex items-center justify-end space-x-4">
+                        <div class="text-white/70 text-sm w-fit">
+                          <span class="current-time" id="track-duration">00:00</span>
+                        </div>
+                        
+                        <!-- Botón de volumen - desktop -->
+                        <button id="player-volume-btn" class="hidden sm:flex items-center text-white/70 hover:text-pink-300 transition-colors" aria-label="Control de volumen">
+                          <IoMdVolumeHigh id="player-volume-icon" className="w-4 h-4" />
+                          <IoMdVolumeOff id="player-mute-icon" className="w-4 h-4 hidden overflow-visible" />
+                        </button>
+
+                        <!-- Botones de SoundCloud - desktop -->
+                        <div class="flex items-center space-x-2">
+                          <button id="like-btn" class="text-white/70 hover:text-red-400 transition-colors flex items-center">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                          </button>
+                          <button id="follow-btn" class="text-white/70 hover:text-blue-400 transition-colors flex items-center">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                          </button>
+                          <div class="relative">
+                            <button id="share-btn" class="text-white/70 hover:text-green-400 transition-colors flex items-center">
+                              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.50-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                              </svg>
+                            </button>
+                            <!-- Dropdown de opciones de compartir -->
+                            <div id="share-dropdown" class="hidden absolute bottom-full right-0 mb-2 bg-black/90 backdrop-blur-sm rounded-lg p-2 min-w-max">
+                              <div class="flex flex-col space-y-1">
+                                <button data-share="facebook" class="flex items-center space-x-2 px-3 py-2 text-white/70 hover:text-blue-500 hover:bg-white/10 rounded transition-colors text-sm">
+                                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                  </svg>
+                                  <span>Facebook</span>
+                                </button>
+                                <button data-share="instagram" class="flex items-center space-x-2 px-3 py-2 text-white/70 hover:text-pink-500 hover:bg-white/10 rounded transition-colors text-sm">
+                                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                  </svg>
+                                  <span>Instagram</span>
+                                </button>
+                                <button data-share="whatsapp" class="flex items-center space-x-2 px-3 py-2 text-white/70 hover:text-green-500 hover:bg-white/10 rounded transition-colors text-sm">
+                                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                                  </svg>
+                                  <span>WhatsApp</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Layout para móvil (< 640px) -->
+                    <div class="sm:hidden mb-4">
+                      <!-- Información del track -->
+                      <div class="mb-3 text-center">
+                        <h3 id="current-track-title-mobile" class="text-white font-bold text-lg">
+                          {music.tracks[0].title}
+                        </h3>
+                        <p id="current-track-artist-mobile" class="text-white/70 text-sm">
+                          {music.tracks[0].subtitle}
+                        </p>
+                      </div>
+                      
+                      <!-- Tiempo de reproducción -->
+                      <div class="text-center mb-3">
+                        <div class="text-white/70 text-sm">
+                          <span class="current-time-mobile" id="track-duration-mobile">00:00</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Controles del reproductor - solo móvil -->
+                    <div class="flex items-center justify-center space-x-6 sm:hidden">
+                      <button id="prev-track-btn" class="text-white hover:text-pink-300 transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                        </svg>
+                      </button>
+                      <button id="play-pause-btn" class="text-white hover:text-pink-300 transition-colors">
+                        <svg id="play-icon" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg id="pause-icon" class="w-8 h-8 hidden" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                        </svg>
+                      </button>
+                      <button id="next-track-btn" class="text-white hover:text-pink-300 transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    <!-- Botones de SoundCloud - visibles solo en móvil -->
+                    <div class="flex items-center justify-center space-x-4 mt-4 sm:hidden">
+                      <!-- Botón de volumen - móvil -->
+                      <button id="player-volume-btn-mobile" class="text-white/70 hover:text-pink-300 transition-colors" aria-label="Control de volumen">
+                        <IoMdVolumeHigh id="player-volume-icon-mobile" className="w-6 h-6" />
+                        <IoMdVolumeOff id="player-mute-icon-mobile" className="w-6 h-6 hidden overflow-visible" />
+                      </button>
+                      
+                      <button class="text-white/70 hover:text-red-400 transition-colors flex items-center space-x-1">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                      </button>
+                      
+                      <button class="text-white/70 hover:text-blue-400 transition-colors flex items-center space-x-1">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                      </button>
+                      
+                      <div class="relative">
+                        <button class="text-white/70 hover:text-green-400 transition-colors flex items-center space-x-1">
+                          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.50-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                          </svg>
+                        </button>
+                        <!-- Dropdown de opciones de compartir móvil -->
+                        <div class="hidden absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black/90 backdrop-blur-sm rounded-lg p-2 min-w-max">
+                          <div class="flex flex-col space-y-1">
+                            <button data-share="facebook" class="flex items-center space-x-2 px-3 py-2 text-white/70 hover:text-blue-500 hover:bg-white/10 rounded transition-colors text-sm">
+                              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                              </svg>
+                              <span>Facebook</span>
+                            </button>
+                            <button data-share="instagram" class="flex items-center space-x-2 px-3 py-2 text-white/70 hover:text-pink-500 hover:bg-white/10 rounded transition-colors text-sm">
+                              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                              </svg>
+                              <span>Instagram</span>
+                            </button>
+                            <button data-share="whatsapp" class="flex items-center space-x-2 px-3 py-2 text-white/70 hover:text-green-500 hover:bg-white/10 rounded transition-colors text-sm">
+                              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+                              </svg>
+                              <span>WhatsApp</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Barra de progreso -->
+                    <div class="mt-4">
+                      <div id="progress-bar" class="w-full bg-white/20 rounded-full h-1 cursor-pointer">
+                        <div id="progress-fill" class="bg-pink-400 h-1 rounded-full transition-all duration-300" style="width: 0%"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Carousel -->
+                  <div id="carousel-container-wrapper" class="relative w-full mx-auto h-20 mb-0   overflow-hidden opacity-0" style="transform: translateY(30px);">
+              
+                      <!-- Contenedor del carousel -->
+                      <div class="h-full rounded-lg overflow-hidden p-2 mask-fade-edges">
+                        <div id="carousel-container" class="flex gap-2 h-full transition-transform duration-500 ease-in-out">
+                          {/* Elementos duplicados al inicio para infinite loop hacia atrás */}
+                          {music.tracks.map((track, index) => (
+                             <div 
+                              class="carousel-item flex-shrink-0 w-64 sm:w-72 md:w-80 h-full relative cursor-pointer group overflow-hidden "
+                              data-track-id={track.id}
+                              data-track-index={index}
+                            >
+                              <div class="w-full h-full bg-white/10 backdrop-blur-md border border-white rounded-lg p-2 flex  items-center justify-start gap-2">
+                                <img src={track['label-img']} alt={`${track.title} label`} class="h-8 sm:h-10 md:h-12 w-auto mb-0" />
+                                <div class="flex flex-col items-start justify-start w-full">
+                                  <h4 class=" w-full text-white font-bold text-[12px] leading-3 text-left mb-1 uppercase ">{track.title}</h4>
+                                  <p class="text-white/70 text-[10px] font-bold text-left w-full overflow-hidden text-ellipsis">{track.subtitle}</p>
+                                </div>
+                              </div>
+                              
+                              <!-- Indicador activo -->
+                              <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full opacity-0 transition-opacity duration-300 track-indicator"></div>
+                            </div>
+                          ))}
+                          
+                          {/* Elementos originales */}
+                          {music.tracks.map((track, index) => (
+                            <div 
+                              class="carousel-item flex-shrink-0 w-64 sm:w-72 md:w-80 h-full relative cursor-pointer group overflow-hidden"
+                              data-track-id={track.id}
+                              data-track-index={index}
+                            >
+                              <div class="w-full h-full bg-white/10 backdrop-blur-md border border-white rounded-lg p-2 flex  items-center justify-start gap-2">
+                                <img src={track['label-img']} alt={`${track.title} label`} class="h-8 sm:h-10 md:h-12 w-auto mb-0" />
+                                <div class="flex flex-col items-start justify-start w-full">
+                                  <h4 class=" w-full text-white font-bold text-[12px] leading-3 text-left mb-1 uppercase ">{track.title}</h4>
+                                  <p class="text-white/70 text-[10px] font-bold text-left w-full overflow-hidden text-ellipsis">{track.subtitle}</p>
+                                </div>
+                              </div>
+                              
+                              <!-- Indicador activo -->
+                              <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full opacity-0 transition-opacity duration-300 track-indicator"></div>
+                            </div>
+                          ))}
+                          
+                          {/* Elementos duplicados al final para infinite loop hacia adelante */}
+                          {music.tracks.map((track, index) => (
+                            <div 
+                              class="carousel-item flex-shrink-0 w-64 sm:w-72 md:w-80 h-full relative cursor-pointer group overflow-hidden"
+                              data-track-id={track.id}
+                              data-track-index={index}
+                            >
+                              <div class="w-full h-full bg-white/10 backdrop-blur-md border border-white rounded-lg p-2 flex  items-center justify-start gap-2">
+                                <img src={track['label-img']} alt={`${track.title} label`} class="h-8 sm:h-10 md:h-12 w-auto mb-0" />
+                                <div class="flex flex-col items-start justify-start w-full">
+                                  <h4 class=" w-full text-white font-bold text-[12px] leading-3 text-left mb-1 uppercase ">{track.title}</h4>
+                                  <p class="text-white/70 text-[10px] font-bold text-left w-full overflow-hidden text-ellipsis">{track.subtitle}</p>
+                                </div>
+                              </div>
+                              
+                              <!-- Indicador activo -->
+                              <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full opacity-0 transition-opacity duration-300 track-indicator"></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <!-- Botón anterior - Columna vertical -->
+                      <button id="prev-btn" class="absolute left-0 top-0 h-full w-10 z-10 flex items-center justify-start text-white hover:scale-120 transition-scale-all duration-300 bg-transparent  overflow-hidden rounded-l-lg">
+                        <svg class="w-12 h-12 ml-[-10px]" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                        </svg>
+                      </button>
+                      
+                      <!-- Botón siguiente - Columna vertical -->
+                      <button id="next-btn" class="absolute right-0 top-0 h-full w-10 z-10 flex items-center justify-end text-white hover:scale-120 transition-scale-all duration-300 bg-transparent  overflow-hidden">
+                        <svg class="w-12 h-12 mr-[-10px]" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                      </button>
+                    
+                  </div>
+              </div>
+              
+              <!-- SoundCloud Player (oculto pero funcional) -->
+              <div id="soundcloud-player" style="visibility: hidden; position: absolute; left: -9999px;">
+                <iframe 
+                  id="soundcloud-iframe"
+                  width="100%" 
+                  height="166" 
+                  scrolling="no" 
+                  frameborder="no" 
+                  allow="autoplay; encrypted-media" 
+                  src={music.tracks[0].soundcloudUrl}
+                  class="rounded-lg"
+                ></iframe>
+              </div>
+              
+            </div>
+
+        </div>
+        
+      
+         
+        
+    </div>
+ 
+</section>
+
+<script>
+  // Cargar SoundCloud API con verificación
+  function loadSoundCloudAPI() {
+    return new Promise((resolve, reject) => {
+      if (window['SC'] && window['SC']['Widget']) {
+        resolve(undefined);
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.src = 'https://w.soundcloud.com/player/api.js';
+      script.onload = () => {
+        if (window['SC'] && window['SC']['Widget']) {
+          resolve(undefined);
+        } else {
+          reject(new Error('SoundCloud API not loaded'));
+        }
+      };
+      script.onerror = () => reject(new Error('Failed to load SoundCloud API'));
+      document.head.appendChild(script);
+    });
+  }
+
+  // Datos de los tracks desde el JSON
+  let musicData = { tracks: [] };
+  let tracks = [];
+  
+  try {
+    const musicDataElement = document.querySelector('#music-data');
+    if (musicDataElement && musicDataElement.textContent) {
+      musicData = JSON.parse(musicDataElement.textContent);
+      tracks = musicData.tracks || [];
+    }
+  } catch (error) {
+    console.error('Error parsing music data:', error);
+    // Fallback data
+    tracks = [
+      {
+        id: 1,
+        title: "BODYBANGERS vs HAYLEY PARSONS",
+        subtitle: "Sunglasses at Night (RadioChi Remix 2017)",
+        description: "Un remix energético que combina elementos de dance y electro house.",
+        image: "/assets/img/music/track1.jpg",
+        soundcloudUrl: "https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/319714972&color=%23b4a4a4&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"
+      }
+    ];
+  }
+  
+  let currentTrackIndex = 0;
+  let isPlaying = false;  // Inicializar en false, se activará con pendingPlay
+let widget = null;
+let pendingPlay = true; // Marcar autoplay pendiente desde el inicio
+
+// Exponer el widget globalmente para que otros componentes puedan acceder a él
+if (typeof window !== 'undefined') {
+  window.widget = widget;
+}
+
+// Estado global de volumen (JS puro)
+if (typeof window !== 'undefined') {
+  if (!window['volumeState']) {
+    window['volumeState'] = { isMuted: false, volume: 80 };
+  }
+}
+
+function updatePlayerVolumeIcons(isMuted) {
+  const volIcon = document.getElementById('player-volume-icon');
+  const muteIcon = document.getElementById('player-mute-icon');
+  if (volIcon && muteIcon) {
+    if (isMuted) {
+      volIcon.classList.add('hidden');
+      muteIcon.classList.remove('hidden');
+    } else {
+      volIcon.classList.remove('hidden');
+      muteIcon.classList.add('hidden');
+    }
+  }
+}
+
+function updatePlayerVolumeIconsMobile(isMuted) {
+  const volIconMobile = document.getElementById('player-volume-icon-mobile');
+  const muteIconMobile = document.getElementById('player-mute-icon-mobile');
+  if (volIconMobile && muteIconMobile) {
+    if (isMuted) {
+      volIconMobile.classList.add('hidden');
+      muteIconMobile.classList.remove('hidden');
+    } else {
+      volIconMobile.classList.remove('hidden');
+      muteIconMobile.classList.add('hidden');
+    }
+  }
+}
+
+window.addEventListener('headerVolumeToggle', function(e){
+  var detail = (e && e['detail']) || {};
+  var state = window['volumeState'] || { isMuted:false, volume:80 };
+  if (typeof detail.isMuted === 'boolean') state.isMuted = detail.isMuted;
+  if (typeof detail.volume === 'number') state.volume = detail.volume;
+  window['volumeState'] = state;
+  updatePlayerVolumeIcons(state.isMuted);
+  updatePlayerVolumeIconsMobile(state.isMuted);
+  if (widget) {
+    try {
+      widget.setVolume(state.isMuted ? 0 : (typeof state.volume === 'number' ? state.volume : 80));
+    } catch(e) {}
+  }
+});
+
+
+  let isManualSeeking = false;
+  let animationsTriggered = false;
+  
+  // Función para detectar cuando la section Music está realmente activa usando hash URL
+  function initializeEntryAnimations() {
+    // console.log('Initializing Music section entry animations with hash detection');
+    const musicSection = document.getElementById('music');
+    if (!musicSection) {
+      // console.log('Music section not found!');
+      return;
+    }
+    
+    // Función para verificar si estamos en la section music basado en URL hash
+    function checkIfMusicSectionActive() {
+      const currentHash = window.location.hash;
+      // console.log('Checking hash:', currentHash, 'Animations triggered:', animationsTriggered);
+      
+      // Verificar si el hash actual es #music (considerando idiomas)
+      const isMusicActive = currentHash === '#music';
+      // console.log('Is Music section active:', isMusicActive);
+      
+      if (isMusicActive) {
+        if (!animationsTriggered) {
+          animationsTriggered = true;
+          // console.log('Music section is now active, starting animations');
+          
+          // Función para verificar si los elementos están completamente listos
+          function checkElementsFullyReady() {
+            const titleElement = document.getElementById('main-title');
+            const descElement = document.getElementById('track-description');
+            
+            if (!titleElement || !descElement) return false;
+            
+            // Verificar dimensiones mínimas y que los estilos estén aplicados
+            const titleStyles = window.getComputedStyle(titleElement);
+            const descStyles = window.getComputedStyle(descElement);
+            
+            const titleReady = titleElement.offsetWidth > 200 && 
+                              titleElement.offsetHeight > 50 &&
+                              titleStyles.fontSize !== '' &&
+                              titleStyles.lineHeight !== '';
+                              
+            const descReady = descElement.offsetWidth > 200 && 
+                             descElement.offsetHeight > 20 &&
+                             descStyles.fontSize !== '' &&
+                             descStyles.lineHeight !== '';
+            
+            if (titleReady && descReady) {
+              // console.log('Elements fully ready for animation');
+              // Triple verificación con múltiples frames
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                    setTimeout(() => {
+                      startTitleAnimation();
+                    }, 200);
+                  });
+                });
+              });
+              return true;
+            }
+            
+            // console.log('Elements not ready yet: sizes', {
+            //   titleWidth: titleElement.offsetWidth,
+            //   titleHeight: titleElement.offsetHeight,
+            //   descWidth: descElement.offsetWidth,
+            //   descHeight: descElement.offsetHeight
+            // });
+            return false;
+          }
+          
+          // Delay mínimo para primera carga
+          setTimeout(() => {
+            // console.log('Starting first check after 500ms');
+            if (!checkElementsFullyReady()) {
+              // Primer reintento después de 300ms más
+              setTimeout(() => {
+                // console.log('First retry after 800ms total');
+                if (!checkElementsFullyReady()) {
+                  // Segundo reintento después de 400ms más
+                  setTimeout(() => {
+                    // console.log('Second retry after 1.2 seconds total');
+                    if (!checkElementsFullyReady()) {
+                      // Último intento después de 800ms más
+                      setTimeout(() => {
+                        // console.log('Final attempt after 2 seconds total');
+                        checkElementsFullyReady();
+                      }, 800);
+                    }
+                  }, 400);
+                }
+              }, 300);
+            }
+          }, 100); // Delay inicial reducido a 100ms
+         }
+       }
+     }
+     
+     // Verificar inmediatamente si ya estamos en la section music
+     checkIfMusicSectionActive();
+     
+     // Escuchar cambios en el hash URL
+     function handleHashChange() {
+       // console.log('Hash changed to:', window.location.hash);
+       checkIfMusicSectionActive();
+     }
+     
+     // Añadir event listener para hashchange con desuscripción previa
+     window.removeEventListener('hashchange', handleHashChange);
+     window.addEventListener('hashchange', handleHashChange);
+     
+     // También escuchar cambios en el DOM para detectar cuando se actualiza el hash programáticamente
+     const observer = new MutationObserver(() => {
+       checkIfMusicSectionActive();
+     });
+     
+     // Observar cambios en el body class que indica la section activa
+     observer.observe(document.body, {
+       attributes: true,
+       attributeFilter: ['class']
+     });
+     
+     // console.log('Hash change listeners configured for Music section detection');
+  }
+  
+  // Función para medir líneas de texto según resolución
+   function measureTextLines(element) {
+     if (!element) return [];
+     
+     const originalText = element.textContent;
+     const words = originalText.split(' ');
+     const lines = [];
+     
+     // Crear elemento temporal para medir
+     const tempElement = element.cloneNode(true);
+     tempElement.style.position = 'absolute';
+     tempElement.style.visibility = 'hidden';
+     tempElement.style.height = 'auto';
+     tempElement.style.width = element.offsetWidth + 'px';
+     tempElement.style.whiteSpace = 'normal';
+     tempElement.textContent = '';
+     element.parentNode.appendChild(tempElement);
+     
+     let currentLine = '';
+     let baseHeight = 0;
+     
+     // Obtener altura de una línea
+     tempElement.textContent = 'Test';
+     baseHeight = tempElement.offsetHeight;
+     tempElement.textContent = '';
+     
+     for (let i = 0; i < words.length; i++) {
+       const testLine = currentLine + (currentLine ? ' ' : '') + words[i];
+       tempElement.textContent = testLine;
+       
+       // Verificar si la altura aumentó (nueva línea)
+       if (tempElement.offsetHeight > baseHeight && currentLine !== '') {
+         // Nueva línea detectada
+         lines.push(currentLine.trim());
+         currentLine = words[i];
+         // Recalcular altura base para la siguiente línea
+         tempElement.textContent = currentLine;
+         baseHeight = tempElement.offsetHeight;
+       } else {
+         currentLine = testLine;
+       }
+     }
+     
+     // Añadir última línea
+     if (currentLine) {
+       lines.push(currentLine.trim());
+     }
+     
+     element.parentNode.removeChild(tempElement);
+     return lines;
+   }
+  
+  // Función para animar contenedores Player, Carousel e Imagen
+  function animateContainers() {
+    const playerContainer = document.getElementById('player-container');
+    const carouselContainer = document.getElementById('carousel-container-wrapper');
+    const imageWrapper = document.getElementById('main-image-wrapper');
+    
+    // Animar Imagen principal primero (derecha a izquierda)
+    if (imageWrapper) {
+      setTimeout(() => {
+        imageWrapper.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        imageWrapper.style.opacity = '1';
+        imageWrapper.style.transform = 'translateX(0)';
+        // console.log('Main image animated');
+      }, 50); // Delay reducido a 50ms
+    }
+    
+    // Animar Player container después
+    if (playerContainer) {
+      setTimeout(() => {
+        playerContainer.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        playerContainer.style.opacity = '1';
+        playerContainer.style.transform = 'translateY(0)';
+        // console.log('Player container animated');
+      }, 100); // Delay reducido a 100ms
+    }
+    
+    // Animar Carousel container al final
+    if (carouselContainer) {
+      setTimeout(() => {
+        carouselContainer.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        carouselContainer.style.opacity = '1';
+        carouselContainer.style.transform = 'translateY(0)';
+        // console.log('Carousel container animated');
+      }, 150); // Delay reducido a 150ms
+    }
+  }
+  
+  // Animación escalonada del título línea por línea
+  function startTitleAnimation() {
+    const titleElement = document.getElementById('main-title');
+    if (!titleElement) return;
+    
+    const lines = measureTextLines(titleElement);
+    if (lines.length === 0) return;
+    
+    // Limpiar contenido y preparar estructura
+    titleElement.innerHTML = '';
+    titleElement.style.opacity = '1';
+    
+    // Crear spans para cada línea
+    lines.forEach((line, index) => {
+      const lineSpan = document.createElement('span');
+      lineSpan.textContent = line;
+      lineSpan.style.display = 'block';
+      lineSpan.style.opacity = '0';
+      lineSpan.style.transform = 'translateY(30px)';
+      lineSpan.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      titleElement.appendChild(lineSpan);
+      
+      // Animar cada línea con delay escalonado (incluyendo la primera línea)
+      setTimeout(() => {
+        lineSpan.style.opacity = '1';
+        lineSpan.style.transform = 'translateY(0)';
+        // console.log(`Line ${index + 1} animated with translateY effect`);
+      }, (index + 1) * 150); // 150ms entre líneas, empezando desde 150ms para la primera
+    });
+    
+    // Animar contenedores Player y Carousel simultáneamente
+    animateContainers();
+    
+    // Iniciar animación de descripción después del título
+    const totalTitleDuration = lines.length * 150 + 800; // Tiempo total + transición
+    setTimeout(() => {
+      startDescriptionTypewriter();
+    }, totalTitleDuration);
+  }
+  
+  // Efecto de escritura tipo máquina para la descripción
+   function startDescriptionTypewriter() {
+     const descElement = document.getElementById('track-description');
+     if (!descElement) return;
+     
+     // Obtener texto original y dividir en líneas manualmente
+     const originalText = descElement.textContent.trim();
+     
+     // Medir líneas usando el elemento original antes de modificarlo
+     const lines = measureTextLines(descElement);
+     if (lines.length === 0) {
+       // Fallback: usar el texto completo como una sola línea
+       lines.push(originalText);
+     }
+     
+     // Limpiar contenido y preparar para escritura
+      descElement.innerHTML = '';
+      descElement.style.opacity = '1';
+      descElement.style.visibility = 'visible'; // Hacer visible al iniciar animación
+      
+      // Preservar las clases CSS originales para alineación responsive
+      const originalClasses = descElement.className;
+      descElement.className = originalClasses;
+     
+     let currentLineIndex = 0;
+     let currentCharIndex = 0;
+     
+     // Crear spans para cada línea (vacíos inicialmente)
+     lines.forEach((line, index) => {
+       const lineSpan = document.createElement('span');
+       lineSpan.style.display = 'block';
+       lineSpan.style.minHeight = '1.2em'; // Mantener altura de línea
+       lineSpan.textContent = ''; // Iniciar completamente vacío
+       descElement.appendChild(lineSpan);
+     });
+     
+     const lineSpans = descElement.querySelectorAll('span');
+     
+     function typeNextCharacter() {
+       if (currentLineIndex >= lines.length) return;
+       
+       const currentLine = lines[currentLineIndex];
+       const currentSpan = lineSpans[currentLineIndex];
+       
+       if (currentCharIndex < currentLine.length) {
+         // Escribir siguiente carácter de izquierda a derecha
+         const textToShow = currentLine.substring(0, currentCharIndex + 1);
+         currentSpan.textContent = textToShow;
+         currentCharIndex++;
+         
+         // Velocidad variable: más rápido en espacios
+         const currentChar = currentLine[currentCharIndex - 1];
+         const delay = currentChar === ' ' ? 30 : 50; // 30ms para espacios, 50ms para letras
+         
+         setTimeout(typeNextCharacter, delay);
+       } else {
+         // Línea completada, pasar a la siguiente
+         currentLineIndex++;
+         currentCharIndex = 0;
+         
+         // Pausa entre líneas
+         setTimeout(typeNextCharacter, 150);
+       }
+     }
+     
+     // Iniciar escritura inmediatamente
+     typeNextCharacter();
+   }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // console.log('Music Section initialized');
+    
+    // Asegurar que tracks se cargue desde #music-data cuando el DOM ya está listo
+    try {
+      const musicDataElementRuntime = document.querySelector('#music-data');
+      if (musicDataElementRuntime && musicDataElementRuntime.textContent) {
+        musicData = JSON.parse(musicDataElementRuntime.textContent);
+        tracks = Array.isArray(musicData.tracks) ? musicData.tracks : [];
+      }
+    } catch (e) {
+      console.error('Error parsing music data at DOMContentLoaded:', e);
+    }
+    
+    // Preparar animaciones de entrada (con detección por hash/observer)
+    initializeEntryAnimations(); // Configura listeners y dispara si el hash ya es #music
+    
+    // Función para interceptar goToSection cuando esté disponible
+    function setupGoToSectionInterceptor() {
+      const originalGoToSection = window['goToSection'];
+      if (originalGoToSection && !originalGoToSection._musicIntercepted) {
+        window['goToSection'] = function(index, animate = true) {
+          const result = originalGoToSection.call(this, index, animate);
+          
+          // Verificar si navegamos a la sección music
+          const sections = document.querySelectorAll('section');
+          const musicSection = document.getElementById('music');
+          if (musicSection && sections[index] === musicSection) {
+            // Ejecutar animaciones después de un pequeño delay para que la sección esté visible
+            setTimeout(() => {
+              if (!animationsTriggered) {
+                animationsTriggered = true;
+                initializeEntryAnimations();
+              }
+            }, 300);
+          }
+          
+          return result;
+        };
+        window['goToSection']._musicIntercepted = true;
+      }
+    }
+    
+    // Intentar interceptar inmediatamente
+    setupGoToSectionInterceptor();
+    
+    // Reintentar cada 100ms hasta que goToSection esté disponible
+    const interceptorInterval = setInterval(() => {
+      if (window['goToSection'] && !window['goToSection']._musicIntercepted) {
+        setupGoToSectionInterceptor();
+        clearInterval(interceptorInterval);
+      }
+    }, 100);
+    
+    // Limpiar el intervalo después de 5 segundos
+    setTimeout(() => clearInterval(interceptorInterval), 5000);
+    
+    // Elementos del DOM
+    const mainImage = document.getElementById('main-image');
+    const imageOverlay = document.getElementById('image-overlay');
+    const trackDescription = document.getElementById('track-description');
+    const currentTrackTitle = document.getElementById('current-track-title');
+    const currentTrackArtist = document.getElementById('current-track-artist');
+    const soundcloudPlayer = document.getElementById('soundcloud-player');
+    const soundcloudIframe = document.getElementById('soundcloud-iframe');
+    const carouselItems = document.querySelectorAll('.carousel-item');
+    const trackIndicators = document.querySelectorAll('.track-indicator');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const prevTrackBtn = document.getElementById('prev-track-btn');
+    const nextTrackBtn = document.getElementById('next-track-btn');
+    const toggleSoundcloudBtn = document.getElementById('toggle-soundcloud-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const progressFill = document.getElementById('progress-fill');
+    
+    // Precargar y mostrar primera imagen
+    if (mainImage && tracks.length > 0) {
+      const firstImage = new Image();
+      firstImage.onload = function() {
+        mainImage.style.opacity = '1';
+        if (imageOverlay) imageOverlay.style.opacity = '1';
+        mainImage.classList.add('image-loaded');
+      };
+      firstImage.src = tracks[0].image;
+    }
+    
+    if (tracks.length === 0) {
+      console.error('No tracks data found');
+      return;
+    }
+    
+    // Inicializar SoundCloud Widget API
+         async function initializeWidget() {
+           try {
+             // Asegurar que SoundCloud API esté cargado
+             await loadSoundCloudAPI();
+             
+             if (soundcloudIframe && window['SC'] && window['SC']['Widget']) {
+                 // console.log('Creating widget with iframe src:', (soundcloudIframe as HTMLIFrameElement).src);
+                 
+                 // Desuscribir eventos del widget anterior si existe
+                 if (widget) {
+                   try {
+                     widget.unbind(window['SC']['Widget']['Events']['READY']);
+                     widget.unbind(window['SC']['Widget']['Events']['PLAY']);
+                     widget.unbind(window['SC']['Widget']['Events']['PAUSE']);
+                     widget.unbind(window['SC']['Widget']['Events']['FINISH']);
+                     widget.unbind(window['SC']['Widget']['Events']['ERROR']);
+                     widget.unbind(window['SC']['Widget']['Events']['SEEK']);
+                     widget.unbind(window['SC']['Widget']['Events']['PLAY_PROGRESS']);
+                     // console.log('Previous widget event listeners unbound');
+                   } catch (unbindError) {
+                     // console.warn('Error unbinding previous widget listeners:', unbindError);
+                   }
+                 }
+                 
+                 widget = window['SC']['Widget'](soundcloudIframe);
+                // Exponer el widget globalmente para que otros componentes puedan acceder a él
+                window.widget = widget;
+                // console.log('Widget created successfully:', widget);
+                
+                // Verificar que el widget se creó correctamente
+                if (!widget) {
+                  console.error('Failed to create SoundCloud widget');
+                  return;
+                }
+             
+             // Event listeners del widget usando sintaxis oficial
+              widget.bind(window['SC']['Widget']['Events']['READY'], () => {
+                // Widget listo: volumen inicial
+                widget.setVolume(80);
+                try {
+                  var st = window['volumeState'] || { isMuted:false, volume:80 };
+                  widget.setVolume(st.isMuted ? 0 : (typeof st.volume === 'number' ? st.volume : 80));
+                } catch (e) {}
+                
+                // No forzar pausa inicial si hay intención de autoplay
+                widget.isPaused((paused) => {
+                  if (!pendingPlay && !paused) {
+                    widget.pause();
+                  }
+                });
+                
+                // Si el usuario ya pulsó play antes de que el widget estuviera listo, reproducir ahora
+                if (pendingPlay) {
+                  pendingPlay = false;
+                  isPlaying = true;
+                  widget.play();
+                  updatePlayPauseButton();
+                }
+                
+                // Autoplay del primer track al cargar la página (solo primera vez) - fallback
+                 if (currentTrackIndex === 0 && !isPlaying) {
+                   setTimeout(() => {
+                     if (!isPlaying) {
+                       widget.play();
+                       isPlaying = true;
+                       updatePlayPauseButton();
+                     }
+                   }, 1000);
+                 }
+                 
+                 // Event listeners para botones desktop
+                 const playPauseBtnDesktop = document.getElementById('play-pause-btn-desktop');
+                 if (playPauseBtnDesktop) {
+                   playPauseBtnDesktop.replaceWith(playPauseBtnDesktop.cloneNode(true));
+                   const newPlayPauseBtnDesktop = document.getElementById('play-pause-btn-desktop');
+                   
+                   newPlayPauseBtnDesktop.addEventListener('click', () => {
+                     if (widget) {
+                       if (isPlaying) {
+                         widget.pause();
+                       } else {
+                         widget.play();
+                       }
+                     } else {
+                       isPlaying = !isPlaying;
+                       updatePlayPauseButton();
+                     }
+                   });
+                 }
+                 
+                 const prevTrackBtnDesktop = document.getElementById('prev-track-btn-desktop');
+                 if (prevTrackBtnDesktop) {
+                   prevTrackBtnDesktop.replaceWith(prevTrackBtnDesktop.cloneNode(true));
+                   const newPrevTrackBtnDesktop = document.getElementById('prev-track-btn-desktop');
+                   
+                   newPrevTrackBtnDesktop.addEventListener('click', () => {
+                     const newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
+                     changeTrack(newIndex);
+                   });
+                 }
+                 
+                 const nextTrackBtnDesktop = document.getElementById('next-track-btn-desktop');
+                 if (nextTrackBtnDesktop) {
+                   nextTrackBtnDesktop.replaceWith(nextTrackBtnDesktop.cloneNode(true));
+                   const newNextTrackBtnDesktop = document.getElementById('next-track-btn-desktop');
+                   
+                   newNextTrackBtnDesktop.addEventListener('click', () => {
+                     const newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
+                     changeTrack(newIndex);
+                   });
+                 }
+              });
+              
+              widget.bind(window['SC']['Widget']['Events']['PLAY'], () => {
+                // console.log('SoundCloud started playing');
+                isPlaying = true;
+                updatePlayPauseButton();
+              });
+              
+              widget.bind(window['SC']['Widget']['Events']['PAUSE'], () => {
+                // console.log('SoundCloud paused');
+                isPlaying = false;
+                updatePlayPauseButton();
+              });
+              
+              widget.bind(window['SC']['Widget']['Events']['FINISH'], () => {
+                // console.log('SoundCloud finished');
+                isPlaying = false;
+                updatePlayPauseButton();
+              });
+              
+              // Event listener para errores
+              widget.bind(window['SC']['Widget']['Events']['ERROR'], (error) => {
+                console.error('SoundCloud widget error:', error);
+              });
+              
+              widget.bind(window['SC']['Widget']['Events']['SEEK'], (data) => {
+                   // console.log('SoundCloud seek completed');
+                 });
+              
+              widget.bind(window['SC']['Widget']['Events']['PLAY_PROGRESS'], (data) => {
+                 // Solo actualizar si no estamos haciendo seeking manual
+                 if (!isManualSeeking) {
+                   // Obtener referencia actual al progressFill
+                   const currentProgressFill = document.getElementById('progress-fill');
+                   if (currentProgressFill && data.relativePosition !== undefined) {
+                     const percentage = data.relativePosition * 100;
+                     currentProgressFill.style.width = percentage + '%';
+                   }
+                 }
+                 
+                 // Actualizar tiempo de reproducción siempre
+                 if (data.currentPosition !== undefined) {
+                   const currentTime = Math.floor(data.currentPosition / 1000);
+                   const minutes = Math.floor(currentTime / 60);
+                   const seconds = currentTime % 60;
+                   const timeDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                   
+                   // Actualizar display de tiempo si existe
+                   const timeElement = document.querySelector('.current-time');
+                   const timeElementMobile = document.querySelector('.current-time-mobile');
+                   if (timeElement) {
+                     timeElement.textContent = timeDisplay;
+                   }
+                   if (timeElementMobile) {
+                     timeElementMobile.textContent = timeDisplay;
+                   }
+                 }
+               });
+               
+               // Event listeners de controles - configurar cada vez que se inicializa
+               setupControlListeners();
+           }
+         } catch (error) {
+           console.error('Error initializing SoundCloud widget:', error);
+         }
+       }
+       
+       // Función para configurar todos los event listeners de controles
+       function setupControlListeners() {
+         // Configurar event listeners del widget si existe
+         if (widget) {
+           // Desuscribir listeners previos del widget para evitar duplicados
+           try {
+             widget.unbind(window['SC']['Widget']['Events']['PLAY']);
+             widget.unbind(window['SC']['Widget']['Events']['PAUSE']);
+             widget.unbind(window['SC']['Widget']['Events']['FINISH']);
+             widget.unbind(window['SC']['Widget']['Events']['PLAY_PROGRESS']);
+           } catch (e) {
+             // noop
+           }
+           // console.log('Configuring widget event listeners');
+           
+           widget.bind(window['SC']['Widget']['Events']['PLAY'], () => {
+             // console.log('SoundCloud started playing');
+             isPlaying = true;
+             updatePlayPauseButton();
+           });
+           
+           widget.bind(window['SC']['Widget']['Events']['PAUSE'], () => {
+             // console.log('SoundCloud paused');
+             isPlaying = false;
+             updatePlayPauseButton();
+           });
+           
+           widget.bind(window['SC']['Widget']['Events']['FINISH'], () => {
+             // console.log('SoundCloud finished');
+             isPlaying = false;
+             updatePlayPauseButton();
+           });
+           
+           widget.bind(window['SC']['Widget']['Events']['PLAY_PROGRESS'], (data) => {
+             // Solo actualizar si no estamos haciendo seeking manual
+             if (!isManualSeeking) {
+               // Obtener referencia actual al progressFill
+               const currentProgressFill = document.getElementById('progress-fill');
+               if (currentProgressFill && data.relativePosition !== undefined) {
+                 const percentage = data.relativePosition * 100;
+                 currentProgressFill.style.width = percentage + '%';
+               }
+             }
+             
+             // Actualizar tiempo de reproducción siempre
+             if (data.currentPosition !== undefined) {
+               const currentTime = Math.floor(data.currentPosition / 1000);
+               const minutes = Math.floor(currentTime / 60);
+               const seconds = currentTime % 60;
+               const timeDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+               
+               // Actualizar display de tiempo si existe
+               const timeElement = document.querySelector('.current-time');
+               const timeElementMobile = document.querySelector('.current-time-mobile');
+               if (timeElement) {
+                 timeElement.textContent = timeDisplay;
+               }
+               if (timeElementMobile) {
+                 timeElementMobile.textContent = timeDisplay;
+               }
+             }
+           });
+           
+           // console.log('Widget event listeners configured successfully');
+         }
+         
+         // Event listener para botón play/pause
+          if (playPauseBtn) {
+            // Remover listener anterior si existe
+            playPauseBtn.replaceWith(playPauseBtn.cloneNode(true));
+            const newPlayPauseButton = document.getElementById('play-pause-btn');
+           
+           newPlayPauseButton.addEventListener('click', () => {
+             // console.log('Play/Pause button clicked, isPlaying:', isPlaying, 'widget:', !!widget);
+             // console.log('SoundCloud iframe src:', soundcloudIframe ? (soundcloudIframe as HTMLIFrameElement).src : 'iframe not found');
+             if (widget) {
+               if (isPlaying) {
+                 widget.pause();
+               } else {
+                 widget.play();
+               }
+             } else {
+               // Widget aún no está listo: marcar intención de reproducción
+               isPlaying = true;
+               pendingPlay = true;
+               updatePlayPauseButton();
+             }
+           });
+         }
+         
+         // Event listener para la barra de progreso - MEJORADO
+         const currentProgressBar = document.getElementById('progress-bar');
+         if (currentProgressBar) {
+           // Remover todos los event listeners anteriores
+           const newProgressBar = currentProgressBar.cloneNode(true);
+           currentProgressBar.parentNode.replaceChild(newProgressBar, currentProgressBar);
+           
+           newProgressBar.addEventListener('click', (e) => {
+              if (widget && !isManualSeeking) {
+                isManualSeeking = true;
+                
+                const rect = (newProgressBar as HTMLElement).getBoundingClientRect();
+                const clickX = (e as MouseEvent).clientX - rect.left;
+               const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+               
+               // console.log(`Seeking to ${(percentage * 100).toFixed(1)}%`);
+               
+               widget.getDuration((duration) => {
+                 if (duration && duration > 0) {
+                   const seekTime = duration * percentage;
+                   
+                   // Actualizar barra inmediatamente para feedback visual
+                   const currentProgressFill = document.getElementById('progress-fill');
+                   if (currentProgressFill) {
+                     currentProgressFill.style.width = (percentage * 100) + '%';
+                   }
+                   
+                   // Ejecutar seek con callback de confirmación
+                   widget.seekTo(seekTime);
+                   
+                   // Reset del flag después de un breve delay
+                   setTimeout(() => {
+                     isManualSeeking = false;
+                   }, 500);
+                   
+                   // console.log(`Seeked to ${(percentage * 100).toFixed(1)}% (${seekTime.toFixed(0)}ms)`);
+                 } else {
+                   // console.warn('Duration not available for seeking');
+                   isManualSeeking = false;
+                 }
+               });
+             }
+           });
+           
+           // console.log('Progress bar event listener configured successfully');
+         }
+         
+         // Event listener para botón de volumen del player (desktop)
+         const playerVolumeBtn = document.getElementById('player-volume-btn');
+         if (playerVolumeBtn) {
+           playerVolumeBtn.replaceWith(playerVolumeBtn.cloneNode(true));
+           const newPlayerVolumeBtn = document.getElementById('player-volume-btn');
+           newPlayerVolumeBtn.addEventListener('click', function(){
+             const state = window['volumeState'] || { isMuted:false, volume:80 };
+             state.isMuted = !state.isMuted;
+             window['volumeState'] = state;
+             updatePlayerVolumeIcons(state.isMuted);
+             if (widget) {
+               try {
+                 widget.setVolume(state.isMuted ? 0 : (typeof state.volume === 'number' ? state.volume : 80));
+               } catch(e) {}
+             }
+             window.dispatchEvent(new CustomEvent('headerVolumeToggle', { detail: { isMuted: state.isMuted, volume: state.volume } }));
+           });
+           updatePlayerVolumeIcons((window['volumeState'] && window['volumeState']['isMuted']) ? true : false);
+         }
+         
+         // Event listener para botón de volumen del player (móvil)
+         const playerVolumeBtnMobile = document.getElementById('player-volume-btn-mobile');
+         if (playerVolumeBtnMobile) {
+           playerVolumeBtnMobile.replaceWith(playerVolumeBtnMobile.cloneNode(true));
+           const newPlayerVolumeBtnMobile = document.getElementById('player-volume-btn-mobile');
+           newPlayerVolumeBtnMobile.addEventListener('click', function(){
+             const state = window['volumeState'] || { isMuted:false, volume:80 };
+             state.isMuted = !state.isMuted;
+             window['volumeState'] = state;
+             updatePlayerVolumeIconsMobile(state.isMuted);
+             if (widget) {
+               try {
+                 widget.setVolume(state.isMuted ? 0 : (typeof state.volume === 'number' ? state.volume : 80));
+               } catch(e) {}
+             }
+             window.dispatchEvent(new CustomEvent('headerVolumeToggle', { detail: { isMuted: state.isMuted, volume: state.volume } }));
+           });
+           updatePlayerVolumeIconsMobile((window['volumeState'] && window['volumeState']['isMuted']) ? true : false);
+         }
+       }
+    
+    // Función para actualizar el botón play/pause
+    function updatePlayPauseButton() {
+      // Botones móvil
+      const playIcon = document.getElementById('play-icon');
+      const pauseIcon = document.getElementById('pause-icon');
+      
+      // Botones desktop
+      const playIconDesktop = document.getElementById('play-icon-desktop');
+      const pauseIconDesktop = document.getElementById('pause-icon-desktop');
+      
+      if (isPlaying) {
+        if (playIcon) playIcon.classList.add('hidden');
+        if (pauseIcon) pauseIcon.classList.remove('hidden');
+        if (playIconDesktop) playIconDesktop.classList.add('hidden');
+        if (pauseIconDesktop) pauseIconDesktop.classList.remove('hidden');
+      } else {
+        if (playIcon) playIcon.classList.remove('hidden');
+        if (pauseIcon) pauseIcon.classList.add('hidden');
+        if (playIconDesktop) playIconDesktop.classList.remove('hidden');
+        if (pauseIconDesktop) pauseIconDesktop.classList.add('hidden');
+      }
+
+      // Emitir estado de reproducción para sincronizar con el header
+      window.dispatchEvent(new CustomEvent('playerPlayState', {
+        detail: { isPlaying: isPlaying }
+      }));
+    }
+
+    // Sincronizar play/pause desde el header
+    window.addEventListener('headerPlayPauseToggle', function(){
+      if (widget) {
+        if (isPlaying) {
+          try { widget.pause(); } catch(e) {}
+        } else {
+          try { widget.play(); } catch(e) {}
+        }
+      } else {
+        // Si no hay widget aún, memorizar intención de reproducción
+        isPlaying = true;
+        pendingPlay = true;
+        updatePlayPauseButton();
+      }
+    });
+    
+    // Función para cambiar track
+    function changeTrack(index) {
+      if (index < 0 || index >= tracks.length) return;
+      
+      const track = tracks[index];
+      currentTrackIndex = index;
+      
+      // RESET INMEDIATO Y FORZADO DE LA BARRA DE PROGRESO
+      const currentProgressFill = document.getElementById('progress-fill');
+      if (currentProgressFill) {
+        // Reset inmediato sin transición
+        currentProgressFill.style.transition = 'none';
+        currentProgressFill.style.width = '0%';
+        currentProgressFill.style.transform = 'scaleX(0)';
+        
+        // Forzar múltiples repaints para asegurar el reset
+        currentProgressFill.offsetHeight;
+        currentProgressFill.offsetWidth;
+        
+        // Limpiar transform y reactivar transición
+        currentProgressFill.style.transform = '';
+        currentProgressFill.style.transition = 'width 0.3s ease';
+        
+        // console.log('Progress bar FORCE RESET for track:', track.title);
+      }
+      
+      // Reset COMPLETO de variables de estado
+      isPlaying = false;
+      isManualSeeking = false;
+      
+      // Memorizar intención de reproducción (si veníamos reproduciendo o ya había pendingPlay)
+      const shouldAutoplayNext = pendingPlay || isPlaying;
+      
+      // Pausar widget actual si existe antes de cambiar con manejo mejorado de errores
+      if (widget) {
+        try {
+          // Verificar si el widget está disponible y no está ya pausado
+          widget.isPaused((paused) => {
+            if (!paused) {
+              try {
+                widget.pause();
+                // console.log('Widget paused before track change');
+              } catch (pauseError) {
+                console.warn('Error pausing widget during track change:', pauseError);
+              }
+            }
+          });
+        } catch (error) {
+          console.warn('Error checking widget state before pause:', error);
+        }
+      }
+      
+      // Actualizar inmediatamente el botón play/pause para mostrar play
+      updatePlayPauseButton();
+      // console.log('Play/pause button reset to play state for new track');
+      
+      // Reset adicional del tiempo de reproducción
+      const timeElement = document.querySelector('.current-time');
+      const timeElementMobile = document.querySelector('.current-time-mobile');
+      if (timeElement) timeElement.textContent = '00:00';
+      if (timeElementMobile) timeElementMobile.textContent = '00:00';
+      // console.log('Time display reset to 00:00');
+      
+      // ACTUALIZACIÓN MEJORADA DE LA IMAGEN DE FONDO PRINCIPAL
+      if (mainImage) {
+        // Precargar nueva imagen para asegurar carga completa
+        const newImage = new Image();
+        newImage.onload = function() {
+          // Aplicar nueva imagen inmediatamente sin transiciones complejas
+          mainImage.style.backgroundImage = `url('${track.image}')`;
+          mainImage.style.opacity = '1';
+          if (imageOverlay) imageOverlay.style.opacity = '1';
+          mainImage.classList.add('image-loaded');
+          // console.log('Background image updated successfully to:', track.image);
+        };
+        newImage.onerror = function() {
+          console.error('Error loading new track image:', track.image);
+          // Aplicar imagen de fallback o mantener la actual
+          mainImage.style.backgroundImage = `url('${track.image}')`;
+        };
+        newImage.src = track.image;
+      }
+      
+      // Animación de salida para texto
+      if (trackDescription && trackDescription['style']) trackDescription['style']['opacity'] = '0';
+      
+      setTimeout(() => {
+        // RESET ADICIONAL DEL REPRODUCTOR AL CAMBIAR CANCIÓN
+        
+        // Reset del tiempo de reproducción
+        const timeElement = document.querySelector('.current-time');
+        const timeElementMobile = document.querySelector('.current-time-mobile');
+        if (timeElement) {
+          timeElement.textContent = '00:00';
+        }
+        if (timeElementMobile) {
+          timeElementMobile.textContent = '00:00';
+        }
+        
+        // console.log('Reset for new track');
+        
+        // Cambiar contenido de texto
+        if (trackDescription) {
+          trackDescription.textContent = track.description;
+          trackDescription.style.opacity = '0';
+          trackDescription.style.visibility = 'hidden';
+        }
+        if (currentTrackTitle) currentTrackTitle.textContent = track.title;
+        if (currentTrackArtist) currentTrackArtist.textContent = track.subtitle;
+        
+        // Actualizar elementos móviles
+        const currentTrackTitleMobile = document.getElementById('current-track-title-mobile');
+        const currentTrackArtistMobile = document.getElementById('current-track-artist-mobile');
+        if (currentTrackTitleMobile) currentTrackTitleMobile.textContent = track.title;
+        if (currentTrackArtistMobile) currentTrackArtistMobile.textContent = track.subtitle;
+        
+        // Actualizar heroTitle dinámicamente y preparar para animación
+        const mainTitle = document.getElementById('main-title');
+        if (mainTitle) {
+          mainTitle.textContent = track.heroTitle;
+          mainTitle.style.opacity = '0';
+        }
+        if (soundcloudIframe && 'src' in soundcloudIframe) {
+          // Usar la URL tal como está en el JSON (ya tiene auto_play=false)
+          soundcloudIframe.src = track.soundcloudUrl;
+          
+          // RESET ADICIONAL de la barra después de cambiar URL
+          const progressFillAfterChange = document.getElementById('progress-fill');
+          if (progressFillAfterChange) {
+            progressFillAfterChange.style.width = '0%';
+            // console.log('Additional progress bar reset after URL change');
+          }
+          
+          // Reinicializar widget después de cambiar URL con delay más largo para evitar AbortError
+          setTimeout(() => {
+            try {
+              // Limpiar widget anterior completamente antes de reinicializar
+              if (widget) {
+                try {
+                  widget.unbind();
+                } catch (e) {
+                  // Ignorar errores de unbind
+                }
+                widget = null;
+              }
+              
+              initializeWidget();
+            } catch (error) {
+              console.warn('Error reinitializing widget:', error);
+            }
+            
+            // Reconfigurar event listeners después de reinicializar widget
+            setTimeout(() => {
+              try {
+                setupControlListeners();
+                // Si debía seguir sonando, marcamos pendingPlay; READY ejecutará play de forma segura
+                if (shouldAutoplayNext) {
+                  pendingPlay = true;
+                }
+                // console.log('Event listeners reconfigured after track change');
+              } catch (error) {
+                console.warn('Error setting up control listeners:', error);
+              }
+            }, 1500);
+            
+            // RESET FINAL de la barra después de inicializar widget
+            setTimeout(() => {
+              const finalProgressFill = document.getElementById('progress-fill');
+              if (finalProgressFill) {
+                finalProgressFill.style.width = '0%';
+                // console.log('Final progress bar reset after widget init');
+              }
+            }, 300);
+          }, 500);
+        }
+        
+        // Animación de entrada
+         if (mainImage && mainImage['style']) mainImage['style']['opacity'] = '1';
+         
+         // Ejecutar animaciones de título y descripción para la nueva canción
+         setTimeout(() => {
+           startTitleAnimation();
+         }, 200); // Delay reducido para acelerar la carga
+        
+        // Actualizar indicadores
+         trackIndicators.forEach((indicator, i) => {
+           if (indicator && indicator['style']) {
+             indicator['style']['opacity'] = i === index ? '1' : '0';
+           }
+         });
+        
+        // Actualizar estado activo del carousel
+        carouselItems.forEach((item, i) => {
+          if (item) {
+            if (i === index) {
+              item.classList.add('active');
+            } else {
+              item.classList.remove('active');
+            }
+          }
+        });
+        
+        // Sincronizar posición del carousel con el track actual
+        currentCarouselIndex = index;
+        const carouselContainer = document.getElementById('carousel-container');
+        if (carouselContainer) {
+          const offset = -(startOffset + currentCarouselIndex) * getItemWidth();
+          carouselContainer.style.transform = `translateX(${offset}px)`;
+          // console.log('Carousel synced to track index:', index);
+        }
+        
+      }, 300);
+    }
+    
+    // Event listeners para items del carousel
+    carouselItems.forEach((item, index) => {
+      if (item) {
+        // Agregar tanto click como touchend para mejor compatibilidad móvil
+        item.addEventListener('click', (e) => {
+          // Solo procesar si no estamos arrastrando
+          if (!isDragging) {
+            const trackIndex = parseInt(item.getAttribute('data-track-index'));
+            if (!isNaN(trackIndex)) {
+              changeTrack(trackIndex);
+            }
+          }
+        });
+        
+        // Evento touch específico para móviles
+        item.addEventListener('touchend', (e) => {
+          // Solo procesar si no estamos arrastrando y es un tap simple
+          if (!isDragging) {
+            e.preventDefault(); // Prevenir el click duplicado
+            const trackIndex = parseInt(item.getAttribute('data-track-index'));
+            if (!isNaN(trackIndex)) {
+              changeTrack(trackIndex);
+            }
+          }
+        });
+      }
+    });
+    
+    // Variables para navegación del carousel
+    let currentCarouselIndex = 0;
+    const totalItems = tracks.length;
+    const startOffset = totalItems; // Offset para comenzar en los elementos originales
+    
+    // Función para obtener el ancho responsive de los items del carousel
+    function getItemWidth() {
+      const screenWidth = window.innerWidth;
+      if (screenWidth < 640) { // xs y sm
+        return 256; // w-64 = 256px
+      } else if (screenWidth < 768) { // sm
+        return 288; // w-72 = 288px
+      } else { // md y superiores
+        return 320; // w-80 = 320px
+      }
+    }
+    
+    // Inicializar posición del carousel en los elementos originales
+      function initializeCarousel() {
+         const carouselContainer = document.getElementById('carousel-container');
+         if (carouselContainer) {
+           const initialOffset = -startOffset * getItemWidth();
+           carouselContainer.style.transform = `translateX(${initialOffset}px)`;
+           // console.log('Carousel initialized at offset:', initialOffset);
+         }
+       }
+    
+    // Función para mover el carousel con infinite loop real
+    function moveCarousel(direction) {
+      const carouselContainer = document.getElementById('carousel-container');
+      if (!carouselContainer) return;
+      
+      if (direction === 'next') {
+        currentCarouselIndex++;
+        
+        // Si llegamos al final de los elementos originales
+        if (currentCarouselIndex >= totalItems) {
+          // Mover al primer elemento duplicado del final
+          const offset = -(startOffset + currentCarouselIndex) * getItemWidth();
+          carouselContainer.style.transform = `translateX(${offset}px)`;
+          
+          // Después de la transición, resetear al primer elemento original
+          setTimeout(() => {
+            carouselContainer.style.transition = 'none';
+            currentCarouselIndex = 0;
+            const resetOffset = -startOffset * getItemWidth();
+            carouselContainer.style.transform = `translateX(${resetOffset}px)`;
+            
+            // Restaurar la transición
+            setTimeout(() => {
+              carouselContainer.style.transition = 'transform 500ms ease-in-out';
+            }, 50);
+          }, 500);
+        } else {
+          const offset = -(startOffset + currentCarouselIndex) * getItemWidth();
+          carouselContainer.style.transform = `translateX(${offset}px)`;
+        }
+       } else if (direction === 'prev') {
+          currentCarouselIndex--;
+          
+          // Si vamos antes del primer elemento original
+          if (currentCarouselIndex < 0) {
+            // Mover al último elemento duplicado del inicio
+            const offset = -(startOffset + currentCarouselIndex) * getItemWidth();
+            carouselContainer.style.transform = `translateX(${offset}px)`;
+            
+            // Después de la transición, resetear al último elemento original
+            setTimeout(() => {
+              carouselContainer.style.transition = 'none';
+              currentCarouselIndex = totalItems - 1;
+              const resetOffset = -(startOffset + currentCarouselIndex) * getItemWidth();
+              carouselContainer.style.transform = `translateX(${resetOffset}px)`;
+              
+              // Restaurar la transición
+              setTimeout(() => {
+                carouselContainer.style.transition = 'transform 500ms ease-in-out';
+              }, 50);
+            }, 500);
+          } else {
+            const offset = -(startOffset + currentCarouselIndex) * getItemWidth();
+            carouselContainer.style.transform = `translateX(${offset}px)`;
+          }
+       }
+       
+       // console.log('Carousel moved to index:', currentCarouselIndex);
+    }
+    
+    // Event listeners para botones de navegación del carousel
+    // console.log('prevBtn found:', prevBtn);
+    // console.log('nextBtn found:', nextBtn);
+    
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // console.log('Prev button clicked - moving carousel');
+        moveCarousel('prev');
+      });
+    } else {
+      console.error('prevBtn not found');
+    }
+    
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // console.log('Next button clicked - moving carousel');
+        moveCarousel('next');
+      });
+    } else {
+      console.error('nextBtn not found');
+    }
+    
+    // Funcionalidad de swipe/drag táctil para el carousel
+    const carouselContainer = document.getElementById('carousel-container');
+    let isDragging = false;
+    let startX = 0;
+    let currentX = 0;
+    let initialTransform = 0;
+    
+    if (carouselContainer) {
+      // Mouse events
+      carouselContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        const transform = carouselContainer.style.transform;
+         initialTransform = transform ? parseInt(transform.match(/translateX\(([^)]+)px\)/)?.[1] || '0') : 0;
+        carouselContainer.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+      
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        currentX = e.clientX;
+        const deltaX = currentX - startX;
+        carouselContainer.style.transform = `translateX(${initialTransform + deltaX}px)`;
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        carouselContainer.style.cursor = 'grab';
+        
+        const deltaX = currentX - startX;
+        const threshold = 50; // Mínimo desplazamiento para cambiar
+        
+        if (Math.abs(deltaX) > threshold) {
+          if (deltaX > 0) {
+            moveCarousel('prev');
+          } else {
+            moveCarousel('next');
+          }
+        } else {
+          // Volver a la posición original
+          const offset = -(startOffset + currentCarouselIndex) * getItemWidth();
+          carouselContainer.style.transform = `translateX(${offset}px)`;
+        }
+      });
+      
+      // Touch events
+      carouselContainer.addEventListener('touchstart', (e) => {
+        isDragging = false; // Inicialmente no estamos arrastrando
+        startX = e.touches[0].clientX;
+        const transform = carouselContainer.style.transform;
+         initialTransform = transform ? parseInt(transform.match(/translateX\(([^)]+)px\)/)?.[1] || '0') : 0;
+        // No usar preventDefault aquí para permitir clicks en items
+      });
+      
+      carouselContainer.addEventListener('touchmove', (e) => {
+        const currentX = e.touches[0].clientX;
+        const deltaX = Math.abs(currentX - startX);
+        
+        // Solo activar dragging si el movimiento es significativo
+        if (deltaX > 10) {
+          isDragging = true;
+          const moveX = currentX - startX;
+          carouselContainer.style.transform = `translateX(${initialTransform + moveX}px)`;
+          e.preventDefault(); // Solo prevenir cuando realmente estamos arrastrando
+        }
+      });
+      
+      carouselContainer.addEventListener('touchend', (e) => {
+        const endX = e.changedTouches[0].clientX;
+        const deltaX = endX - startX;
+        const threshold = 50; // Mínimo desplazamiento para cambiar
+        
+        if (isDragging && Math.abs(deltaX) > threshold) {
+          // Solo mover carousel si realmente estuvimos arrastrando
+          if (deltaX > 0) {
+            moveCarousel('prev');
+          } else {
+            moveCarousel('next');
+          }
+        } else if (isDragging) {
+          // Volver a la posición original si arrastramos pero no lo suficiente
+          const offset = -(startOffset + currentCarouselIndex) * getItemWidth();
+          carouselContainer.style.transform = `translateX(${offset}px)`;
+        }
+        
+        // Resetear estado de dragging después de un pequeño delay
+        // para permitir que los eventos click/touchend de los items se procesen
+        setTimeout(() => {
+          isDragging = false;
+        }, 100);
+      });
+      
+      // Estilo del cursor
+      carouselContainer.style.cursor = 'grab';
+    }
+    
+    // Event listeners para controles de navegación (prev/next se mantienen aquí)
+    // Los controles principales (play/pause, progress bar) se configuran en setupControlListeners()
+    
+    if (prevTrackBtn) {
+      prevTrackBtn.addEventListener('click', () => {
+        const newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
+        changeTrack(newIndex);
+      });
+    }
+    
+    if (nextTrackBtn) {
+      nextTrackBtn.addEventListener('click', () => {
+        const newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
+        changeTrack(newIndex);
+      });
+    }
+    
+    if (toggleSoundcloudBtn) {
+      toggleSoundcloudBtn.addEventListener('click', () => {
+        // console.log('Toggle SoundCloud player visibility');
+        if (soundcloudPlayer) {
+          const isCurrentlyHidden = soundcloudPlayer.style.visibility === 'hidden' || soundcloudPlayer.style.left === '-9999px';
+          if (isCurrentlyHidden) {
+            soundcloudPlayer.style.visibility = 'visible';
+            soundcloudPlayer.style.position = '';
+            soundcloudPlayer.style.left = '';
+          } else {
+            soundcloudPlayer.style.visibility = 'hidden';
+            soundcloudPlayer.style.position = 'absolute';
+            soundcloudPlayer.style.left = '-9999px';
+          }
+        }
+      });
+    }
+    
+    // Event listeners para botones de SoundCloud
+    const likeBtn = document.getElementById('like-btn');
+    const followBtn = document.getElementById('follow-btn');
+    const shareBtn = document.getElementById('share-btn');
+    
+    if (likeBtn) {
+      likeBtn.addEventListener('click', () => {
+        // console.log('Like button clicked');
+        if (widget) {
+          // Obtener URL del track actual para like
+          widget.getCurrentSound((sound) => {
+            if (sound && sound.permalink_url) {
+              // Abrir página de SoundCloud para like
+              window.open(sound.permalink_url, '_blank');
+            }
+          });
+        }
+      });
+    }
+    
+    if (followBtn) {
+      followBtn.addEventListener('click', () => {
+        // console.log('Follow button clicked');
+        if (widget) {
+          // Obtener información del usuario para follow
+          widget.getCurrentSound((sound) => {
+            if (sound && sound.user && sound.user.permalink_url) {
+              // Abrir perfil del usuario en SoundCloud
+              window.open(sound.user.permalink_url, '_blank');
+            }
+          });
+        }
+      });
+    }
+    
+    if (shareBtn) {
+      shareBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dropdown = document.getElementById('share-dropdown');
+        if (dropdown) {
+          dropdown.classList.toggle('hidden');
+        }
+      });
+    }
+    
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('share-dropdown');
+      const shareBtn = document.getElementById('share-btn');
+      if (dropdown && shareBtn && e.target && !shareBtn.contains(e.target as Node)) {
+        dropdown.classList.add('hidden');
+      }
+    });
+    
+    // Funcionalidad de los botones de redes sociales
+    const setupSocialShare = () => {
+      if (widget) {
+        widget.getCurrentSound((sound) => {
+          if (sound && sound.permalink_url) {
+            const shareUrl = encodeURIComponent(sound.permalink_url);
+            const shareText = encodeURIComponent(`Escucha "${sound.title}" en SoundCloud`);
+            
+            // Facebook
+            const facebookBtns = document.querySelectorAll('[data-share="facebook"]');
+            facebookBtns.forEach(btn => {
+              btn.addEventListener('click', () => {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank', 'width=600,height=400');
+              });
+            });
+            
+            // Instagram (abrir app o web)
+            const instagramBtns = document.querySelectorAll('[data-share="instagram"]');
+            instagramBtns.forEach(btn => {
+              btn.addEventListener('click', () => {
+                // Instagram no tiene API directa de compartir, copiar URL
+                navigator.clipboard.writeText(sound.permalink_url).then(() => {
+                  alert('URL copiada! Pégala en tu historia de Instagram.');
+                });
+              });
+            });
+            
+            // WhatsApp
+            const whatsappBtns = document.querySelectorAll('[data-share="whatsapp"]');
+            whatsappBtns.forEach(btn => {
+              btn.addEventListener('click', () => {
+                window.open(`https://wa.me/?text=${shareText}%20${shareUrl}`, '_blank');
+              });
+            });
+          }
+        });
+      }
+    };
+    
+    // Event listener para la barra de progreso se configura en setupControlListeners()
+    
+    // Inicializar el carousel en la posición correcta
+    initializeCarousel();
+    
+    // Event listener para recalcular posición en resize
+      window.addEventListener('resize', () => {
+        // Recalcular posición del carousel con el nuevo ancho
+        const carouselContainer = document.getElementById('carousel-container');
+        if (carouselContainer) {
+          const newOffset = -(startOffset + currentCarouselIndex) * getItemWidth();
+          carouselContainer.style.transform = `translateX(${newOffset}px)`;
+        }
+      });
+    
+    // Configurar funcionalidad de compartir en redes sociales
+    setTimeout(() => {
+      setupSocialShare();
+    }, 1000);
+    
+
+     
+    // Inicializar primer track y widget (sin animaciones para primera carga)
+    initializeFirstTrack();
+    
+    // Función para inicializar el primer track sin animaciones
+    function initializeFirstTrack() {
+      const track = tracks[0];
+      currentTrackIndex = 0;
+      
+      // Solo actualizar contenido sin animaciones
+      if (currentTrackTitle) currentTrackTitle.textContent = track.title;
+      if (currentTrackArtist) currentTrackArtist.textContent = track.subtitle;
+      
+      // Actualizar elementos móviles
+      const currentTrackTitleMobile = document.getElementById('current-track-title-mobile');
+      const currentTrackArtistMobile = document.getElementById('current-track-artist-mobile');
+      if (currentTrackTitleMobile) currentTrackTitleMobile.textContent = track.title;
+      if (currentTrackArtistMobile) currentTrackArtistMobile.textContent = track.subtitle;
+      
+      // Configurar SoundCloud iframe
+      if (soundcloudIframe && 'src' in soundcloudIframe) {
+        soundcloudIframe.src = track.soundcloudUrl;
+      }
+      
+      // Actualizar indicadores sin animaciones
+      trackIndicators.forEach((indicator, i) => {
+        if (indicator && indicator['style']) {
+          indicator['style']['opacity'] = i === 0 ? '1' : '0';
+        }
+      });
+      
+      // Actualizar estado activo del carousel
+      carouselItems.forEach((item, i) => {
+        if (item) {
+          if (i === 0) {
+            item.classList.add('active');
+          } else {
+            item.classList.remove('active');
+          }
+        }
+      });
+      
+      // console.log('First track initialized without animations');
+    }
+    
+    // Configurar funcionalidad de compartir en redes sociales
+    setTimeout(() => {
+      setupSocialShare();
+    }, 1000);
+    
+    // Precargar API de SoundCloud y luego inicializar el widget para mejorar tiempo de carga
+    loadSoundCloudAPI().then(() => {
+      initializeWidget();
+    }).catch(err => {
+      console.warn('API de SoundCloud no pudo precargarse:', err);
+      initializeWidget();
+    });
+
+    // Configurar event listeners para la primera canción
+    setTimeout(() => {
+      setupControlListeners();
+      // console.log('Initial event listeners configured for first track');
+    }, 1500);
+    
+    // Suprimir AbortError no controlado del widget para evitar errores de consola al cambiar rápidamente de pista
+    window.addEventListener('unhandledrejection', function (event) {
+      try {
+        const reason = event && event.reason;
+        if (reason && (reason.name === 'AbortError' || /AbortError/.test(String(reason)))) {
+          event.preventDefault();
+        }
+      } catch (e) {}
+    });
+    
+    // Detectar primera interacción del usuario para evitar AudioContext warning
+    function handleFirstInteraction() {
+      (window as any).userHasInteracted = true;
+      // Si la música está lista para reproducir, iniciar autoplay
+      if ((window as any).musicReadyToPlay && !isPlaying && !pendingPlay) {
+        setTimeout(() => {
+          if (widget && !isPlaying && !pendingPlay) {
+            widget.play();
+            isPlaying = true;
+            updatePlayPauseButton();
+          }
+        }, 500);
+      }
+      // Remover listeners después de la primera interacción
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('touchstart', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    }
+    
+    // Agregar listeners para detectar primera interacción
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('touchstart', handleFirstInteraction);
+    document.addEventListener('keydown', handleFirstInteraction);
+    
+    // console.log('Music Section events bound successfully');
+  });
+</script>
+
+<!-- Datos JSON para JavaScript -->
+<script id="music-data" type="application/json" set:html={JSON.stringify(music)}></script>
+
+<style>
+  /* Transiciones suaves */
+  #main-image {
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  #track-description {
+    transition: opacity 0.3s ease-in-out;
+  }
+  
+  /* Estilo para el item activo del carousel */
+  .carousel-item.active {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+  }
+  
+  /* Hover effects */
+  .carousel-item:hover {
+    transform: scale(1.02);
+    transition: transform 0.4s ease-in-out;
+  }
+  
+  /* Máscara de difuminado en bordes del carrusel (responsiva) */
+  .mask-fade-edges {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+            mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+  }
+  
+  @media (min-width: 640px) { /* sm */
+    .mask-fade-edges {
+      -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+              mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+    }
+  }
+  
+  @media (min-width: 768px) { /* md */
+    .mask-fade-edges {
+      -webkit-mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+              mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
+    }
+  }
+  @media (max-height: 700px) {
+    h1.slide-title {
+      font-size: 40px !important;
+      line-height: 40px !important;
+    }
+    /* p#track-description  {
+      display: none !important;
+    
+    } */
+    div#player-container {
+      padding: 10px;
+    }
+    h3#current-track-title-mobile {
+      font-size: 16px !important;
+      line-height: 24px !important;
+    }
+    p#current-track-artist-mobile {
+      font-size: 12px !important;
+      line-height: 18px !important;
+    }
+    div#carousel-container-wrapper {
+      height: 70px;
+    }
+    div#carousel-container-wrapper h4 {
+      font-size: 10px !important;
+      line-height: 14px !important;
+    }
+    div#carousel-container-wrapper p {
+      font-size: 8px !important;
+      line-height: 12px !important;
+    }
+    
+  }
+</style>

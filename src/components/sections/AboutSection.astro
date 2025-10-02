@@ -1,0 +1,615 @@
+---
+import AnimatedBg from "../subcomponentes/AnimatedBg.astro";
+import { getLangFromUrl } from '../../i18n/utils';
+import ScrollIndicator from "../subcomponentes/Scroll-indicator.astro";
+import Starshine from "../subcomponentes/Starshine.astro";
+
+const lang = getLangFromUrl(Astro.url);
+
+// Importar traducciones de about
+let aboutTranslations;
+try {
+  aboutTranslations = await import(`../../i18n/${lang}/about.json`);
+} catch (error) {
+  // Fallback a español si no existe el idioma
+  aboutTranslations = await import('../../i18n/es/about.json');
+}
+
+const about = aboutTranslations.default;
+---
+
+<section id="about" class="relative w-screen h-[100dvh] overflow-hidden">
+    <!-- Fondo animado -->
+    <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 5;" /> 
+      
+    <!-- Contenido principal -->
+    <div class="relative z-10 w-full h-full">
+        <!-- Background Images - FIXED -->
+        {about.scrollytelling.steps.map((step, index) => (
+            <>
+                <!-- Imagen principal -->
+                <div 
+                    class="step-image fixed inset-0 w-full h-full opacity-0 transition-opacity duration-1000 ease-in-out pointer-events-none"
+                    data-step-image={index}
+                    data-image-type="primary"
+                    style={`background-image: url('${step.image}'); background-size: cover; background-position: center;`}
+                >
+                    <div class="absolute inset-0 bg-black/40"></div>
+                </div>
+                
+                <!-- Imagen secundaria (si existe) -->
+                {step.image2 && (
+                    <div 
+                        class="step-image fixed inset-0 w-full h-full opacity-0 transition-opacity duration-1000 ease-in-out pointer-events-none"
+                        data-step-image={index}
+                        data-image-type="secondary"
+                        style={`background-image: url('${step.image2}'); background-size: cover; background-position: center;`}
+                    >
+                        <div class="absolute inset-0 bg-black/40"></div>
+                    </div>
+                )}
+            </>
+        ))}
+        
+        <!-- Contenido de textos FIJO Y CENTRADO -->
+        <div class="fixed inset-0 flex items-center justify-center pointer-events-none z-20">
+            <div class="max-w-4xl mx-auto text-center px-6 pointer-events-none">
+                {about.scrollytelling.steps.map((step, index) => (
+                    <div class="step-content absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-1000 ease-in-out" data-step-content={index}>
+                        <div class="text-center max-w-[90%] mx-auto">
+                            <h1 class="w-fit mx-auto text-5xl sm:text-6xl md:text-7xl leading-14 sm:leading-16 md:leading-20 font-bold text-transparent [-webkit-text-stroke:2px_white] [-webkit-text-fill-color:rgba(255,255,255,0.1)] text-center mb-2">
+                                {step.title}
+                            </h1>
+                            <h2 class="w-fit mx-auto text-3xl sm:text-4xl md:text-5xl leading-10 sm:leading-16 md:leading-20 font-bold text-white  text-center mb-2">
+                                {step.subtitle}
+                            </h2>
+                            <p class="text-white/90 text-lg lg:text-xl leading-relaxed font-bold max-w-3xl mx-auto mb-8">
+                                {step.content}
+                            </p>
+                            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hidden">
+                                <h3 class="text-white font-bold text-xl">{step.chartTitle}</h3>
+                                <p class="text-white/80">{step.chartSubtitle}</p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+        
+        <!-- Scrollytelling Container - SOLO PARA SCROLL -->
+        <div id="scrollytelling-container" class="w-full h-full overflow-y-scroll relative z-30 pointer-events-auto">
+            <!-- Áreas de scroll vacías para cada step -->
+            {about.scrollytelling.steps.map((step, index) => (
+                <div class="step-section w-full h-screen" data-step={index + 1}></div>
+            ))}
+        </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <ScrollIndicator />
+
+</section>
+
+<style>
+  /* Scrollytelling básico */
+  #scrollytelling-container {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+    /* Ocultar barra de scroll */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  /* Ocultar barra de scroll en webkit browsers */
+  #scrollytelling-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .step-section {
+    scroll-snap-align: start;
+    height: 200vh; /* cada step ocupa dos pantallas */
+  }
+
+  /* Gradiente/máscara transparente en imágenes de fondo solo desde 768px (md) hacia arriba */
+  @media (min-width: 768px) {
+    .step-image {
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 75%, black 100%);
+    }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  document.addEventListener('DOMContentLoaded', () => {
+    const scrollContainer = document.getElementById('scrollytelling-container');
+    const steps = document.querySelectorAll('.step-section');
+    const stepImages = document.querySelectorAll('.step-image');
+    const stepContents = document.querySelectorAll('.step-content');
+    let currentStep = 0;
+    let scrollytellingCompleted = false;
+    // Puntos fijos de scroll por step (calculados al cargar)
+    let initialSegmentSize = 0;
+    const stepStartPositions = [];
+ 
+    // Referencias a elementos de texto y sus contenidos originales para typing
+    const stepWrappers = document.querySelectorAll('.step-content');
+    const h1Els = [];
+    const h2Els = [];
+    const contentEls = [];
+    const origH1s = [];
+    const origH2s = [];
+    const origContents = [];
+    const h1Heights = [];
+    const h2Heights = [];
+    const contentHeights = [];
+
+    // Bandera por step: h1 y h2 terminados
+    const stepTypingDone = [];
+    
+    // Estados de typing automático para h1 y h2
+    let currentTypingStep = -1;
+    let h1TypingInterval = null;
+    let h2TypingInterval = null;
+
+   // Estados para typing automático del contenido al mostrar segunda imagen
+    let contentTypingInterval = null;
+    const contentTypingStarted = []; // Bandera por step para saber si ya empezó
+    const contentTypingDone = []; // Bandera por step para saber si terminó
+    
+    stepWrappers.forEach((wrap, i) => {
+      const h1El = wrap.querySelector('h1');
+      const h2El = wrap.querySelector('h2');
+      const cEl = wrap.querySelector('p');
+      
+      h1Els[i] = h1El;
+      h2Els[i] = h2El;
+      contentEls[i] = cEl;
+      
+      const h1Text = h1El ? (h1El.textContent || '') : '';
+      const h2Text = h2El ? (h2El.textContent || '') : '';
+      const cText = cEl ? (cEl.textContent || '') : '';
+      
+      origH1s[i] = h1Text;
+      origH2s[i] = h2Text;
+      origContents[i] = cText;
+      
+      // Medir y fijar altura mínima para evitar reflow
+      const h1H = h1El ? h1El.clientHeight : 0;
+      const h2H = h2El ? h2El.clientHeight : 0;
+      const cH = cEl ? cEl.clientHeight : 0;
+      
+      h1Heights[i] = h1H;
+      h2Heights[i] = h2H;
+      contentHeights[i] = cH;
+      
+      if (h1El) h1El.style.minHeight = `${h1H}px`;
+      if (h2El) h2El.style.minHeight = `${h2H}px`;
+      if (cEl) cEl.style.minHeight = `${cH}px`;
+
+      // Inicializar bandera
+      stepTypingDone[i] = false;
+      contentTypingStarted[i] = false;
+      contentTypingDone[i] = false;
+    });
+
+    // Limpiar temporizadores de typing
+    function clearTypingTimers() {
+      if (h1TypingInterval) {
+        clearInterval(h1TypingInterval);
+        h1TypingInterval = null;
+      }
+      if (h2TypingInterval) {
+        clearInterval(h2TypingInterval);
+        h2TypingInterval = null;
+      }
+      if (contentTypingInterval) {
+        clearInterval(contentTypingInterval);
+        contentTypingInterval = null;
+      }
+    }
+
+    // Función para iniciar typing de h1 y h2 al inicio de cada step
+    function startStepTyping(stepIndex) {
+      if (stepIndex === currentTypingStep) return; // Ya está escribiendo este step
+      
+      clearTypingTimers();
+      currentTypingStep = stepIndex;
+      stepTypingDone[stepIndex] = false;
+      contentTypingStarted[stepIndex] = false;
+      contentTypingDone[stepIndex] = false;
+      
+      const h1El = h1Els[stepIndex];
+      const h2El = h2Els[stepIndex];
+      const contentEl = contentEls[stepIndex];
+      
+      if (!h1El || !h2El || !contentEl) return;
+      
+      // Limpiar textos
+      h1El.textContent = '';
+      h2El.textContent = '';
+      contentEl.textContent = '';
+      
+      const h1Text = origH1s[stepIndex];
+      const h2Text = origH2s[stepIndex];
+      
+      // Typing del h1 (velocidad: un carácter cada 50ms)
+      let h1CharIndex = 0;
+      h1TypingInterval = setInterval(() => {
+        if (h1CharIndex < h1Text.length) {
+          h1El.textContent = h1Text.substring(0, h1CharIndex + 1);
+          h1CharIndex++;
+        } else {
+          // H1 terminado, iniciar h2
+          clearInterval(h1TypingInterval);
+          h1TypingInterval = null;
+          
+          // Pequeña pausa antes del h2
+          setTimeout(() => {
+            if (currentTypingStep === stepIndex) { // Verificar que seguimos en el mismo step
+              // Typing del h2 (velocidad: un carácter cada 50ms)
+              let h2CharIndex = 0;
+              h2TypingInterval = setInterval(() => {
+                if (h2CharIndex < h2Text.length) {
+                  h2El.textContent = h2Text.substring(0, h2CharIndex + 1);
+                  h2CharIndex++;
+                } else {
+                  // H2 terminado
+                  clearInterval(h2TypingInterval);
+                  h2TypingInterval = null;
+                  stepTypingDone[stepIndex] = true;
+                  // Forzar una actualización inmediata para evaluar inicio de contenido y bloqueo/desbloqueo
+                  updateStepEffects();
+                  
+
+                }
+              }, 50);
+            }
+          }, 300); // Pausa de 300ms entre h1 y h2
+        }
+      }, 50);
+    }
+
+  // Función para iniciar typing del contenido cuando aparece la segunda imagen
+    function startContentTyping(stepIndex) {
+      if (contentTypingStarted[stepIndex] || !stepTypingDone[stepIndex]) return;
+      
+      contentTypingStarted[stepIndex] = true;
+      contentTypingDone[stepIndex] = false;
+      
+      const contentEl = contentEls[stepIndex];
+      const contentText = origContents[stepIndex];
+      
+      if (!contentEl || !contentText) return;
+      
+      // Limpiar contenido previo
+      contentEl.textContent = '';
+      
+      // Typing del contenido (velocidad: un carácter cada 30ms para que sea más rápido)
+      let contentCharIndex = 0;
+      contentTypingInterval = setInterval(() => {
+        if (contentCharIndex < contentText.length) {
+          contentEl.textContent = contentText.substring(0, contentCharIndex + 1);
+          contentCharIndex++;
+        } else {
+          // Contenido terminado
+          clearInterval(contentTypingInterval);
+          contentTypingInterval = null;
+          contentTypingDone[stepIndex] = true;
+          // Desbloquear inmediatamente permitiendo avanzar/retroceder al siguiente anclaje
+          updateStepEffects();
+        }
+      }, 30);
+    }
+
+    if (!scrollContainer || !steps.length) return;
+
+    // Calcular puntos fijos por step al cargar el componente
+    const scrollBottomInit = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+    const totalScrollableInit = Math.max(1, scrollBottomInit);
+    initialSegmentSize = totalScrollableInit / steps.length;
+    for (let i = 0; i < steps.length; i++) {
+      stepStartPositions[i] = i * initialSegmentSize;
+    }
+        function updateStepEffects() {
+          const hash = window.location.hash || '';
+          if (!scrollContainer || !steps.length) return;
+
+          const scrollTop = scrollContainer.scrollTop;
+          // Usar puntos fijos calculados al cargar para segmentar el scroll - pasar a % de scroll total
+          const scrollBottom = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+          const totalScrollable = Math.max(1, scrollBottom);
+          const scrollPercent = scrollTop / totalScrollable;
+          
+          // ANCLAJES FIJOS: Step 1 = 0%, Step 2 = 20%, Step 3 = 40%, Step 4 = 60%, Step 5 = 80%
+          const stepAnchors = [0, 0.2, 0.4, 0.6, 0.8];
+          let clampedIndex = 0;
+          
+          // Determinar step por proximidad al anclaje más cercano
+          let minDistance = Infinity;
+          for (let i = 0; i < stepAnchors.length; i++) {
+            const distance = Math.abs(scrollPercent - stepAnchors[i]);
+            if (distance < minDistance) {
+              minDistance = distance;
+              clampedIndex = i;
+            }
+          }
+
+          // Bloquear cambio de step mientras haya animaciones de texto en curso en el step actual
+          if (currentTypingStep !== -1) {
+            const idxLock = currentTypingStep;
+            // Mantener bloqueado HASTA que termine el contenido: garantiza ver ambas imágenes y no saltar de step
+            let lockBecauseTexts = (!stepTypingDone[idxLock]) || (!contentTypingDone[idxLock]);
+            // Reglas estrictas para último step (step 5): no permitir salir hasta que secondary+content estén visibles
+            if (idxLock === steps.length - 1) {
+              const secondaryVisible = (stepTypingDone[idxLock] && (contentTypingStarted[idxLock] || contentTypingDone[idxLock]));
+              if (!secondaryVisible) {
+                lockBecauseTexts = true;
+              }
+            }
+            if (lockBecauseTexts) {
+              clampedIndex = idxLock;
+
+             // Congelar scroll en el anclaje fijo del step mientras duren las animaciones
+             const anchorPercent = stepAnchors[idxLock];
+             const anchorY = anchorPercent * totalScrollable;
+             if (scrollTop !== anchorY) {
+               scrollContainer.scrollTop = anchorY;
+             }
+            }
+          }
+          
+          // Segunda imagen SOLO cuando el typing de títulos terminó Y el contenido ya empezó
+          const activeShowSecondary = (stepTypingDone[clampedIndex] && contentTypingStarted[clampedIndex]);
+          stepWrappers.forEach((wrap, idx) => {
+            const h1El = h1Els[idx];
+            const h2El = h2Els[idx];
+            const contentEl = contentEls[idx];
+            
+            if (!h1El || !h2El || !contentEl) return;
+            
+            if (idx === clampedIndex) {
+              // Step activo: iniciar typing automático si es nuevo
+              if (idx !== currentTypingStep) {
+                startStepTyping(idx);
+              }
+              
+              // Iniciar typing del contenido SOLO después de terminar h1+h2 completamente
+              if (stepTypingDone[idx] && !contentTypingStarted[idx]) {
+                // Añadir pequeña pausa antes de iniciar contenido para ver la primera imagen
+                setTimeout(() => {
+                  if (idx === clampedIndex && stepTypingDone[idx] && !contentTypingStarted[idx]) {
+                    startContentTyping(idx);
+                  }
+                }, 800); // Pausa de 800ms para ver imagen primaria con títulos
+              }
+            } else {
+              // Steps no activos: limpiar textos visibles pero mantener flags para evitar re-bloqueos
+              h1El.textContent = '';
+              h2El.textContent = '';
+              contentEl.textContent = '';
+            }
+          });
+          
+          // Actualizar imágenes (dos por step: primary en primera mitad, secondary en segunda mitad)
+          stepImages.forEach((img) => {
+            const stepIndex = parseInt(img.getAttribute('data-step-image'));
+            const imageType = img.getAttribute('data-image-type');
+            
+            if (stepIndex === clampedIndex) {
+              if (!activeShowSecondary && imageType === 'primary') {
+                img.style.opacity = '1';
+              } else if (activeShowSecondary && imageType === 'secondary') {
+                img.style.opacity = '1';
+              } else {
+                img.style.opacity = '0';
+              }
+            } else {
+              img.style.opacity = '0';
+            }
+          });
+         
+         // Actualizar contenido (siempre el del step actual)
+         stepContents.forEach((content, index) => {
+           if (index === clampedIndex) {
+             content.style.opacity = '1';
+           } else {
+             content.style.opacity = '0';
+           }
+         });
+         
+         // Actualizar URL solo si hay cambio de step
+         if (clampedIndex !== currentStep) {
+           currentStep = clampedIndex;
+           const newHash = `#about/${clampedIndex + 1}`;
+           history.replaceState(null, null, newHash);
+           console.log('📍 Step:', clampedIndex + 1);
+         }
+         
+         // Actualizar estado de completado basado en la posición real del scroll
+        // Con margen de 400px para steps normales, 1200px para step 5 (más margen)
+         if (clampedIndex === steps.length - 1) {
+           const scrollBottom = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+          const endMarginPx = (clampedIndex === 4) ? 1200 : 400;
+           const isNearBottom = scrollTop >= (scrollBottom - endMarginPx);
+           // SOLO permitir completado si la segunda imagen (con contenido) ya se muestra
+           const canComplete = activeShowSecondary && (contentTypingStarted[clampedIndex] || contentTypingDone[clampedIndex]);
+           const completed = isNearBottom && canComplete;
+           scrollytellingCompleted = completed;
+           window.aboutScrollytellingCompleted = completed;
+           console.log(completed ? '🔓 Completado (near bottom y secondary visible con content)' : '🔒 No completado - último step, aún no se ha mostrado secondary+content o no está en margen');
+         } else if (clampedIndex === 0) {
+           // Step 1: marcar como completado cuando termine el typing del contenido
+           const step1ContentCompleted = contentTypingDone[0];
+           scrollytellingCompleted = step1ContentCompleted;
+           window.aboutScrollytellingCompleted = step1ContentCompleted;
+           console.log(step1ContentCompleted ? '🔓 Step 1 completado (content typing done)' : '🔒 Step 1 no completado - esperando typing de contenido');
+         } else {
+           // Para steps que no son el último ni el primero, no marcamos completado hasta que se alcance el siguiente anclaje
+           scrollytellingCompleted = false;
+           window.aboutScrollytellingCompleted = false;
+         }
+       }
+      
+      // Event listener para scroll - SIEMPRE ACTIVO
+      scrollContainer.addEventListener('scroll', (e) => {
+        updateStepEffects();
+      });
+      
+      // Función para resetear about cuando se entra a la sección
+      function resetAboutSection() {
+        scrollContainer.scrollTop = 0;
+        currentStep = 0;
+        scrollytellingCompleted = false;
+        window.aboutScrollytellingCompleted = false;
+        // Limpiar estados de typing de TODOS los steps
+        stepWrappers.forEach((wrap, i) => {
+          const h1El = h1Els[i];
+          const h2El = h2Els[i];
+          const contentEl = contentEls[i];
+          if (h1El) h1El.textContent = '';
+          if (h2El) h2El.textContent = '';
+          if (contentEl) contentEl.textContent = '';
+          stepTypingDone[i] = false;
+          contentTypingStarted[i] = false;
+          contentTypingDone[i] = false;
+        });
+        currentTypingStep = -1;
+        clearTypingTimers();
+        history.replaceState(null, null, '#about/1');
+        updateStepEffects();
+        console.log('🔄 About reseteado a step 1');
+      }
+      
+      // Reemplazar goToSection para resetear al entrar en About
+      const wrapGoToSectionForAbout = () => {
+        if (typeof window.goToSection === 'function') {
+          const originalFn = window.goToSection;
+          
+          // Preservar la función original sin wraps previos
+          const baseFunction = originalFn.originalFunction || originalFn;
+          
+          window.goToSection = function(index, animate = true) {
+            const result = baseFunction(index, animate);
+            
+            // Si entramos a About (index 1), resetear solo si NO hay un step específico en el hash distinto de 1
+            if (index === 1) {
+              setTimeout(() => {
+                const h = window.location.hash || '';
+                const hasSpecificStep = /^#about\/(\d+)/.test(h) && h !== '#about/1';
+                if (!hasSpecificStep) {
+                  resetAboutSection();
+                  console.log('🔄 About reseteado desde goToSection wrap');
+                }
+              }, 120);
+            }
+            
+            return result;
+          };
+          
+          // Preservar referencia a la función base
+          window.goToSection.originalFunction = baseFunction;
+          console.log('🔧 goToSection wrapped por AboutSection');
+        }
+      };
+      
+      // Wrap inicial si ya existe
+      wrapGoToSectionForAbout();
+      
+      // También wrap cuando se defina por primera vez
+      const checkGoToSection = setInterval(() => {
+        if (typeof window.goToSection === 'function' && !window.goToSection.originalFunction) {
+          clearInterval(checkGoToSection);
+          wrapGoToSectionForAbout();
+        }
+      }, 50);
+      
+      // Re-wrap si otra sección sobrescribe goToSection
+      const observer = new MutationObserver(() => {
+        if (typeof window.goToSection === 'function' && !window.goToSection.originalFunction) {
+          console.log('🔄 Re-wrapping goToSection por AboutSection');
+          wrapGoToSectionForAbout();
+        }
+      });
+      
+      observer.observe(document, { childList: true, subtree: true });
+        
+      // Inicializar - solo si estamos en about
+      if (window.location.hash === '#about' || window.location.hash === '#about/' || window.location.hash === '#about/1') {
+        resetAboutSection();
+      } else if (window.location.hash.startsWith('#about/')) {
+        // Entra a un step específico por hash directo (#about/2, etc.)
+        const match = window.location.hash.match(/^#about\/(\d+)/);
+        if (match) {
+          const stepNum = Math.max(1, Math.min(parseInt(match[1], 10), steps.length));
+          const targetIndex = stepNum - 1;
+          const scrollBottom2 = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+          const totalScrollable2 = Math.max(1, scrollBottom2);
+          // Usar puntos fijos calculados al cargar el componente
+          scrollContainer.scrollTop = (stepStartPositions[targetIndex] ?? (targetIndex * initialSegmentSize));
+          currentStep = targetIndex;
+          const scrollBottom = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+          const endMarginPx = (targetIndex === 4) ? 1200 : 400;
+          const isNearBottom = scrollContainer.scrollTop >= (scrollBottom - endMarginPx);
+          const completed = (targetIndex === steps.length - 1) && isNearBottom;
+          scrollytellingCompleted = completed;
+          window.aboutScrollytellingCompleted = completed;
+          updateStepEffects();
+        }
+        updateStepEffects();
+      } else {
+        // Inicialización normal fuera de About
+        scrollContainer.scrollTop = 0;
+        currentStep = 0;
+        updateStepEffects();
+      }
+
+      // Sincronizar About con cambios de hash (p.ej., al volver desde Music)
+      function handleAboutHashChange() {
+         const hash = window.location.hash;
+         if (hash === '#about' || hash === '#about/1') {
+           // Asegurar que About se resetea al step 1
+           resetAboutSection();
+         } else if (hash.startsWith('#about/')) {
+           const match = hash.match(/^#about\/(\d+)/);
+           if (match) {
+             const stepNum = Math.max(1, Math.min(parseInt(match[1], 10), steps.length));
+             const targetIndex = stepNum - 1;
+             const scrollBottom2 = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+             const totalScrollable2 = Math.max(1, scrollBottom2);
+             // Usar puntos fijos calculados al cargar el componente
+             scrollContainer.scrollTop = (stepStartPositions[targetIndex] ?? (targetIndex * initialSegmentSize));
+             currentStep = targetIndex;
+             const scrollBottom = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+             const endMarginPx = (targetIndex === 4) ? 1200 : 400;
+             const isNearBottom = scrollContainer.scrollTop >= (scrollBottom - endMarginPx);
+             const completed = (targetIndex === steps.length - 1) && isNearBottom;
+             scrollytellingCompleted = completed;
+             window.aboutScrollytellingCompleted = completed;
+             updateStepEffects();
+           }
+         }
+      }
+
+      // Evitar listeners duplicados (HMR)
+      window.removeEventListener('hashchange', handleAboutHashChange);
+      window.addEventListener('hashchange', handleAboutHashChange);
+      // Observador: cuando la sección About se vuelve activa (clase en body), resetear
+      let aboutActive = document.body.classList.contains('fp-viewing-about');
+      const bodyClassObserver = new MutationObserver(() => {
+        const nowActive = document.body.classList.contains('fp-viewing-about');
+        if (nowActive && !aboutActive) {
+          const h = window.location.hash || '';
+          const hasSpecificStep = /^#about\/(\d+)/.test(h) && h !== '#about/1';
+          if (hasSpecificStep) {
+            handleAboutHashChange();
+          } else {
+            // Entramos a About: resetear para habilitar scroll interno desde step 1
+            resetAboutSection();
+          }
+        }
+        aboutActive = nowActive;
+      });
+      bodyClassObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    });
+</script>

@@ -1,0 +1,250 @@
+---
+import { locales } from "../../i18n/utils";
+
+const { pathname } = Astro.url;
+const currentLang = Astro.currentLocale;
+const path = pathname.split('/').slice(2).join('/');
+const { id } = Astro.props;
+---
+<!-- Menu lang Header -->
+{id === 'header-lang-switcher' && (
+  <div class="relative flexk justify-center items-center text-left vlt-language-switcher mr-5">
+    <div>
+      <button 
+        type="button" 
+        class="language-dropdown-btn flex justify-center items-center gap-0 w-full py-1 bg-transparent text-md  text-white font-bold  " 
+        aria-expanded="false" 
+        aria-haspopup="true"
+      >
+        {currentLang?.toUpperCase() || 'ES'}
+        <svg class="-mr-1  h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+
+    <div 
+      class="language-dropdown-menu origin-top-right absolute flex justify-center items-center right-0 mt-0 w-fit rounded-md bg-transparent focus:outline-none backdrop-filter backdrop-blur-lg bg-opacity-80 opacity-0 invisible transform scale-95 transition-all duration-200 ease-out border border-white" 
+      role="menu" 
+      aria-orientation="vertical" 
+      tabindex="-1"
+    >
+      <div class="flex flex-col justify-center items-center gap-2 py-2 " role="none">
+        {locales.filter(lang => lang !== currentLang).map(lang => (
+          <a 
+            href={lang === 'es' ? `/${path}` : `/${lang}/${path}`} 
+            class="language-dropdown-link w-full text-white font-bold block px-2 py-0 text-md hover:bg-gray-50/20 hover:text-gray-900 transition-colors duration-150" 
+            role="menuitem" 
+            tabindex="-1"
+          >
+            {lang.toUpperCase()}
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
+<!-- Menu lang Hamburguesa DESPLEGABLE lateral-->
+{id !== 'header-lang-switcher' && (
+  <div class="flex flex-wrap gap-1">
+    {locales.map(lang => (
+      <a 
+        href={lang === 'es' ? `/${path}` : `/${lang}/${path}`} 
+        class={`px-0.5 py-1 text-md rounded transition-colors font-bold ${
+          lang === currentLang 
+            ? 'text-white' 
+            : 'text-white/70 hover:text-gray-900 transition-colors duration-300 ease-in-out'
+        }`}
+      >
+        {lang.toUpperCase()}
+      </a>
+    ))}
+  </div>
+)}
+
+<script>
+// @ts-nocheck
+// Importar funciones de gestión de idioma
+import { setCurrentLangCookie } from '../../i18n/utils.js';
+
+// Función para manejar el dropdown de idiomas
+  function setupLanguageDropdown() {
+    // Buscar todos los dropdowns para manejar múltiples instancias
+    const dropdowns = document.querySelectorAll('.vlt-language-switcher');
+    
+    dropdowns.forEach(dropdown => {
+        const dropdownBtn = dropdown.querySelector('.language-dropdown-btn');
+        const dropdownMenu = dropdown.querySelector('.language-dropdown-menu');
+        
+        if (!dropdownBtn || !dropdownMenu) {
+          return;
+        }
+        
+        setupSingleDropdown(dropdownBtn, dropdownMenu, dropdown);
+      });
+   }
+  
+  function setupSingleDropdown(dropdownBtn, dropdownMenu, container) {
+    if (!dropdownBtn || !dropdownMenu) {
+      return;
+    }
+    
+    // Setting up language dropdown...
+    
+    let isOpen = false;
+    let closeTimeout = null;
+    
+    function openDropdown() { // console.log('click to open Lang menu')
+      if (!dropdownBtn || !dropdownMenu) return;
+      
+      // Cancelar cualquier timeout de cierre pendiente
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+      
+      isOpen = true;
+      dropdownBtn.setAttribute('aria-expanded', 'true');
+      dropdownMenu.classList.remove('opacity-0', 'invisible', 'scale-95');
+      dropdownMenu.classList.add('opacity-100', 'visible', 'scale-100');
+    }
+    
+    function closeDropdown() {
+      if (!dropdownBtn || !dropdownMenu) return;
+      isOpen = false;
+      dropdownBtn.setAttribute('aria-expanded', 'false');
+      dropdownMenu.classList.remove('opacity-100', 'visible', 'scale-100');
+      dropdownMenu.classList.add('opacity-0', 'invisible', 'scale-95');
+    }
+    
+    function scheduleClose() {
+      // Programar cierre con retardo de 1200ms (1.2 segundos)
+      closeTimeout = setTimeout(() => {
+        if (isOpen) {
+          closeDropdown();
+        }
+        closeTimeout = null;
+      }, 1200);
+    }
+    
+    function cancelClose() {
+      // Cancelar cierre programado
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+        closeTimeout = null;
+      }
+    }
+    
+    function toggleDropdown(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      if (isOpen) {
+        closeDropdown();
+      } else {
+        openDropdown();
+      }
+    }
+    
+    // Event listeners
+    dropdownBtn.addEventListener('click', toggleDropdown);
+    
+    // Cerrar cuando el mouse sale del contenedor completo (con retardo)
+    if (container) {
+      container.addEventListener('mouseleave', function() {
+        if (isOpen) {
+          scheduleClose();
+        }
+      });
+      
+      // Cancelar cierre si el mouse vuelve a entrar
+      container.addEventListener('mouseenter', function() {
+        cancelClose();
+      });
+    }
+    
+    // También aplicar la lógica al menú desplegable
+    if (dropdownMenu) {
+      dropdownMenu.addEventListener('mouseenter', function() {
+        cancelClose();
+      });
+      
+      dropdownMenu.addEventListener('mouseleave', function() {
+        if (isOpen) {
+          scheduleClose();
+        }
+      });
+    }
+    
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', function(event) {
+       const target = event.target;
+       if (dropdownBtn && dropdownMenu && target && !dropdownBtn.contains(target) && !dropdownMenu.contains(target)) {
+        closeDropdown();
+      }
+    });
+    
+    // Cerrar con Escape
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && isOpen) {
+        closeDropdown();
+      }
+    });
+    
+    // Language dropdown setup complete
+  }
+  
+  // Función para configurar enlaces de idioma
+  function setupLanguageLinks() {
+    const languageLinks = document.querySelectorAll('.language-dropdown-link, a[href*="/en/"], a[href*="/ca/"], a[href*="/fr/"], a[href*="/it/"], a[href*="/de/"], a[href*="/es/"]');
+    
+    languageLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href) {
+        link.addEventListener('click', function(event) {
+          const langMatch = href.match(/^\/(ca|en|fr|it|de)\//); 
+          let selectedLang = 'es'; // Por defecto español
+          
+          if (langMatch) {
+            selectedLang = langMatch[1];
+          }
+          
+          // Actualizar cookie de idioma
+          setCurrentLangCookie(selectedLang);
+          
+          // console.log('🔄 Idioma cambiado a:', selectedLang);
+         });
+       }
+    });
+  }
+  
+  // Inicializar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setupLanguageDropdown();
+      setupLanguageLinks();
+    });
+  } else {
+    setupLanguageDropdown();
+    setupLanguageLinks();
+  }
+</script>
+
+<style>
+  .language-dropdown-menu {
+    z-index: 1000;
+  }
+  
+  .language-dropdown-menu.visible {
+    pointer-events: auto;
+  }
+  
+  .language-dropdown-menu.invisible {
+    pointer-events: none;
+  }
+  
+  .language-dropdown-link:hover {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
+  }
+</style>

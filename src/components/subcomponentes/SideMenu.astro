@@ -1,0 +1,272 @@
+---
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import SocialRRSS from './Social-rrss.astro';
+import TermsPolicyCookies from './TermsPolicyCookies.astro';
+import { getLangFromUrl } from '../../i18n/utils';
+
+// SideMenu.astro - Menú sidebar completo con overlay y funcionalidades
+// Traducciones directas para SideMenu
+const lang = getLangFromUrl(Astro.url);
+
+const translations = {
+  es: {
+    home: "Inicio",
+    about: "Acerca de",
+    music: "Música",
+    calendar: "Próximos Eventos",
+    media: "Media",
+    myjournal: "Mi Diario",
+    contact: "Contacto"
+  },
+  en: {
+    home: "Home",
+    about: "About",
+    music: "Music",
+    calendar: "Upcoming Events",
+    media: "Media",
+    myjournal: "My Journal",
+    contact: "Contact"
+  },
+  ca: {
+    home: "Inici",
+    about: "Sobre mi",
+    music: "Música",
+    calendar: "Propers Esdeveniments",
+    media: "Media",
+    myjournal: "El meu Diari",
+    contact: "Contacte"
+  },
+  fr: {
+    home: "Accueil",
+    about: "À propos",
+    music: "Musique",
+    calendar: "Événements à Venir",
+    media: "Média",
+    myjournal: "Mon Journal",
+    contact: "Contact"
+  },
+  it: {
+    home: "Home",
+    about: "Chi sono",
+    music: "Musica",
+    calendar: "Prossimi Eventi",
+    media: "Media",
+    myjournal: "Il mio Diario",
+    contact: "Contatto"
+  },
+  de: {
+    home: "Startseite",
+    about: "Über mich",
+    music: "Musik",
+    calendar: "Kommende Veranstaltungen",
+    media: "Medien",
+    myjournal: "Mein Tagebuch",
+    contact: "Kontakt"
+  }
+};
+
+const currentTranslations = translations[lang] || translations.es;
+---
+
+<!-- Overlay con blur -->
+<div id="sidebar-overlay" class="fixed top-0 left-0 w-screen h-screen bg-black/60 z-40">
+</div>
+
+<!-- Menú sidebar -->
+<div id="side-menu" class="fixed flex flex-col items-end justify-end  top-0 right-0 w-[240px]  h-screen bg-white/10 backdrop-blur-[30px] z-50 shadow-[-10px_0_20px_rgba(0,0,0,0.5)]" style="clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 15% 100%); ">
+  
+  <!-- Botón cerrar (aspa visible) -->
+  <!-- <button id="close-menu" style="position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">✕</button> -->
+  
+  <!-- Contenido -->
+  <div class="w-fit px-8 py-18 h-full flex flex-col items-end justify-start ">
+    
+    <!-- Enlaces -->
+    <div class="w-fit mb-[20px] flex flex-col items-end justify-start gap-4">
+      <a href="#home" class="sidebar-link block text-white text-lg font-semibold text-right no-underline transition-colors duration-300 ease-in-out">{currentTranslations.home}</a>
+      <a href="#about" class="sidebar-link block text-white text-lg font-semibold text-right no-underline transition-colors duration-300 ease-in-out">{currentTranslations.about}</a>
+      <a href="#music" class="sidebar-link block text-white text-lg font-semibold text-right no-underline transition-colors duration-300 ease-in-out">{currentTranslations.music}</a>
+      <a href="#calendar" class="sidebar-link block text-white text-lg font-semibold text-right no-underline transition-colors duration-300 ease-in-out">{currentTranslations.calendar}</a>
+      <!-- -  <a href="#media" class="sidebar-link block text-white text-lg font-semibold text-right no-underline transition-colors duration-300 ease-in-out">{currentTranslations.media}</a> -->
+      <!-- -  <a href="#myjournal" class="sidebar-link block text-white text-lg font-semibold text-right no-underline transition-colors duration-300 ease-in-out">{currentTranslations.myjournal}</a> -->
+      <a href="#contact" class="sidebar-link block text-white text-lg font-semibold text-right no-underline transition-colors duration-300 ease-in-out">{currentTranslations.contact}</a>
+    </div>
+    
+    <!-- Título -->
+     <div class="w-fit flex justify-end items-center mr-[-5px] mb-[20px] ">
+      <LanguageSwitcher />
+    </div>
+
+    <!-- Social -->
+     <div class="w-full flex justify-end items-center mr-[-5px]">
+       <SocialRRSS />
+    </div>
+
+    <!-- Terms Policy Cookies -->
+    <div class="lg:hidden absolute bottom-[5%]">
+      <TermsPolicyCookies />
+    </div>
+    
+  </div>
+</div>
+
+<style>
+  /* Sidebar positioning and animation */
+  #side-menu {
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  #side-menu.active {
+    transform: translateX(0);
+  }
+  
+  /* Overlay animation */
+  #sidebar-overlay {
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  #sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  /* Hover effects */
+   
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    #side-menu {
+      width: 320px !important;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    #side-menu {
+      width: 280px !important;
+    }
+  }
+</style>
+
+<script>
+// @ts-nocheck
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const sideMenu = document.getElementById('side-menu');
+    const overlay = document.getElementById('sidebar-overlay');
+    const closeBtn = document.getElementById('close-menu');
+    const languageSwitcher = document.querySelector('.flex.items-center.space-x-4 > *:first-child');
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    
+    let isMenuOpen = false;
+    
+    function openMenu() {
+      if (isMenuOpen) return;
+      
+      isMenuOpen = true;
+      
+      // Mostrar overlay
+      if (overlay) {
+        overlay.classList.add('active');
+      }
+      
+      // Mostrar sidebar
+      if (sideMenu) {
+        sideMenu.classList.add('active');
+      }
+      
+      // Cambiar hamburguesa a aspa
+      if (menuToggle) {
+        menuToggle.classList.add('active');
+      }
+      
+      // Ocultar language switcher
+       if (languageSwitcher && languageSwitcher instanceof HTMLElement) {
+         languageSwitcher.style.opacity = '0';
+         languageSwitcher.style.visibility = 'hidden';
+         languageSwitcher.style.transition = 'all 0.3s ease';
+       }
+      
+      // console.log('Menú abierto');
+    }
+    
+    function closeMenu() {
+      if (!isMenuOpen) return;
+      
+      isMenuOpen = false;
+      
+      // Ocultar overlay
+      if (overlay) {
+        overlay.classList.remove('active');
+      }
+      
+      // Ocultar sidebar
+      if (sideMenu) {
+        sideMenu.classList.remove('active');
+      }
+      
+      // Cambiar aspa a hamburguesa
+      if (menuToggle) {
+        menuToggle.classList.remove('active');
+      }
+      
+      // Mostrar language switcher
+       if (languageSwitcher && languageSwitcher instanceof HTMLElement) {
+         languageSwitcher.style.opacity = '1';
+         languageSwitcher.style.visibility = 'visible';
+       }
+      
+      // console.log('Menú cerrado');
+    }
+    
+    // Click en hamburguesa
+    if (menuToggle) {
+      menuToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (isMenuOpen) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      });
+    }
+    
+    // Click en botón cerrar
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        closeMenu();
+      });
+    }
+    
+    // Click en overlay (fuera del sidebar)
+    if (overlay) {
+      overlay.addEventListener('click', function() {
+        closeMenu();
+      });
+    }
+    
+    // Click en enlaces del sidebar
+    sidebarLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        closeMenu();
+      });
+    });
+    
+    // Cerrar al redimensionar pantalla
+    window.addEventListener('resize', function() {
+      if (isMenuOpen) {
+        closeMenu();
+      }
+    });
+    
+    // Cerrar con tecla Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isMenuOpen) {
+        closeMenu();
+      }
+    });
+  });
+</script>

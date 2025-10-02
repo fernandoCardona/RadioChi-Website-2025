@@ -1,0 +1,185 @@
+---
+// ProgressBar.astro - Barra de progreso vertical para navegación
+---
+
+<!-- Progress Bar Navigation -->
+<div class="progress-bar-container ">
+  <!-- Línea de fondo -->
+  <div class="progress-line-bg"></div>
+  
+  <!-- Línea de progreso activa -->
+  <div class="progress-line-active"></div>
+  
+  <!-- Puntos de navegación -->
+  <div class="progress-dot" data-section="home"></div>
+  <div class="progress-dot" data-section="about"></div>
+  <div class="progress-dot" data-section="music"></div>
+  <div class="progress-dot" data-section="media"></div>
+  <div class="progress-dot" data-section="myjournal"></div>
+  <div class="progress-dot" data-section="contact"></div>
+</div>
+
+<style>
+  .progress-bar-container {
+    position: fixed;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    height: 300px;
+    width: 4px;
+    pointer-events: auto;
+  }
+  
+  .progress-line-bg {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 1px;
+  }
+  
+  .progress-line-active {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 0%;
+    background: linear-gradient(to bottom, #fff, #fff);
+    border-radius: 1px;
+    transition: height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  .progress-dot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    /* background: rgba(255, 255, 255, 0.3); */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    z-index: 2;
+  }
+  
+  .progress-dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .progress-dot:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: translateX(-50%) scale(1.2);
+  }
+  
+  .progress-dot.active {
+    /* background: #dc2626; 
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateX(-50%) scale(1.3);*/
+  }
+  
+  .progress-dot.active::before {
+    /* background: rgba(255, 255, 255, 0.8); */
+  }
+  
+  /* Posicionamiento de los dots */
+  .progress-dot[data-section="home"] { top: 0%; }
+  .progress-dot[data-section="about"] { top: 20%; }
+  .progress-dot[data-section="music"] { top: 40%; }
+  .progress-dot[data-section="media"] { top: 60%; }
+  .progress-dot[data-section="myjournal"] { top: 80%; }
+  .progress-dot[data-section="contact"] { top: 100%; }
+
+  
+  
+  @media (max-width: 768px) {
+    .progress-bar-container {
+      right: auto;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 250px;
+    }
+    
+    .progress-dot {
+      width: 10px;
+      height: 10px;
+    }
+    
+    .progress-dot::before {
+      width: 4px;
+      height: 4px;
+    }
+  }
+  
+  @media (max-width: 414px) {
+    .progress-bar-container {
+      right: 10px;
+      height: 200px;
+    }
+    
+    .progress-dot {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .progress-dot::before {
+      width: 3px;
+      height: 3px;
+    }
+  }
+</style>
+
+<script>
+  // @ts-nocheck
+  // Función para actualizar la barra de progreso
+  function updateProgressBar(currentSectionIndex, totalSections) {
+    const progressLine = document.querySelector('.progress-line-active');
+    const progressDots = document.querySelectorAll('.progress-dot');
+    
+    if (progressLine && 'style' in progressLine) {
+      // Calcular el porcentaje de progreso
+      const progressPercentage = ((currentSectionIndex + 1) / totalSections) * 100;
+      /** @type {HTMLElement} */ (progressLine).style.height = `${progressPercentage}%`;
+    }
+    
+    // Actualizar dots activos
+    progressDots.forEach((dot, index) => {
+      dot.classList.remove('active');
+      if (index === currentSectionIndex) {
+        dot.classList.add('active');
+      }
+    });
+  }
+  
+  // Función para manejar clicks en los dots
+  function bindProgressBarEvents(goToSectionCallback) {
+    const progressDots = document.querySelectorAll('.progress-dot');
+    
+    progressDots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        if (goToSectionCallback) {
+          goToSectionCallback(index);
+        }
+      });
+    });
+  }
+  
+  // Exponer funciones globalmente para que puedan ser usadas desde index.astro
+  /** @type {any} */ (window).updateProgressBar = updateProgressBar;
+  /** @type {any} */ (window).bindProgressBarEvents = bindProgressBarEvents;
+</script>

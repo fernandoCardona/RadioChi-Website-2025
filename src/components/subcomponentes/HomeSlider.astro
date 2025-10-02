@@ -1,0 +1,895 @@
+---
+// HomeSlider.astro - Swiper automático con fade transitions
+import { useTranslations, getLangFromUrl } from '../../i18n/utils';
+import ButtonBasic from './ButtonBasic.astro';
+ 
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// Obtener slides completos de las traducciones (incluyendo imágenes)
+const slides = t('slides') || [];
+---
+
+<div class="home-slider-container relative overflow-hidden">
+ 
+  <div class="swiper-wrappe ">
+    {slides.map((slide, index) => (
+      <div class={`slide ${index === 0 ? 'active' : ''} `} data-slide={index}>
+
+        {/* <!-- Contenido del slide --> */}
+        <div class="slide-content">
+          <div class="max-w-[100%] w-full mx-auto sm:mx-0 md:max-w-[700px] lg:max-w-[900px] flex flex-col items-center lg:items-start justify-center mt-0 md:mt-0 lg:mt-0 transform translate-y-[100px] md:translate-y-[100px] lg:translate-y-[100px]">
+            
+            {/* Si logoPosition es 'left', no mostramos el logo aquí */}
+            {/* {slide.logo && (!slide.logoPosition || slide.logoPosition === 'top') && 
+              <img src={slide.logo} alt="RadioChi Logo" class="slide-logo w-auto h-[140px] md:h-[220px] max-h-[220px] mb-2 md:mb-0" />
+            } */}
+            
+            {/* Si logoPosition es 'left', mostramos el logo y el título en un contenedor flex */}
+            {slide.logo && slide.logoPosition === 'left' ? (
+              <div class="flex flex-row items-center justify-start sm:justify-center lg:justify-start gap-[10px] lg:gap-[25px] w-[95%] sm:mx-auto lg:mx-0">
+                <div class="w-1/2 lg:w-fit flex justify-end lg:justify-start items-center h-[120px] md:h-[150px] lg:h-[180px]">
+                  <img src={slide.logo} alt={`${slide.title} Logo`} class="slide-logo-left w-auto h-full mb-0 object-contain" />
+                </div>
+                <div class="w-auto flex justify-end">
+                  <h1 class="slide-title w-auto !text-left  text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-8 xs:leading-10 sm:leading-12 md:leading-16 lg:leading-20 tracking-[-1px] xs:tracking-[-2px] font-bold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)] md:[text-shadow:1px_1px_2px_rgba(0,0,0,0.0)] md:text-transparent md:[-webkit-text-stroke:2.5px_white] md:[-webkit-text-fill-color:rgba(255,255,255,0.1)] mb-2">{slide.title}</h1>
+                </div>
+              </div>
+            ) : (
+              <h1 class="slide-title w-full  text-5xl leading-12 sm:text-6xl sm:leading-14 md:text-7xl md:leading-18 lg:text-8xl lg:leading-22 tracking-[-3px] font-bold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)] md:[text-shadow:1px_1px_2px_rgba(0,0,0,0.0)] md:text-transparent md:[-webkit-text-stroke:2.5px_white] md:[-webkit-text-fill-color:rgba(255,255,255,0.1)] mb-2">{slide.title}</h1>
+            )}
+
+            <h2 class="slide-subtitle slide-title w-fit text-2xl md:text-3xl lg:text-4xl leading-8  md:leading-10 font-bold text-white [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)] mb-2">{slide.subtitle}</h2>
+
+            <p class="slide-description slide-subtitle slide-title w-fit text-xl md:text-1xl lg:text-2xl leading-6  md:leading-8 font-bold text-white/60 [text-shadow:1px_1px_2px_rgba(0,0,0,0.4)] mb-1">{slide.description}</p>
+            <ButtonBasic 
+               text={slide.buttonText || ''} 
+               href={slide.link || '#'} 
+               event={slide.event || ''}
+               class={slide.buttonText && slide.buttonText.trim() !== '' && slide.link && slide.link.trim() !== '' ? 'has-content' : 'no-content'} 
+             />
+          </div>
+        </div>
+        
+        {/* <!-- Imagen de persona --> */}
+        <div class={`person-image person-image-${index} flex items-start justify-start`} style="overflow: visible;">
+          <img  src={slide.personImage} class="w-full h-auto" style="overflow: visible;" alt="RadioChi Person" />
+        </div> 
+        
+        {/* <!-- Imagen de elipse decorativa --> */}
+        <div class="elipse-decoration ">
+        </div>
+
+      </div>
+    ))}
+  </div>
+  
+  <!-- Bullets de navegación -->
+  <div class="swiper-pagination">
+    {slides.map((_, index) => (
+      <span class={`bullet ${index === 0 ? 'active' : ''}`} data-bullet={index}></span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .home-slider-container {
+    position: relative;
+    width: 100%;
+    height: 100dvh; /* Usar dvh para adaptarse dinámicamente a la altura del viewport */
+    overflow: hidden;
+    pointer-events: auto; /* Permite interacción con elementos */
+    z-index: 5; /* Mayor que AnimatedBg para evitar superposición */
+  }
+
+  .swiper-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh; /* Usar dvh para adaptarse dinámicamente a la altura del viewport */
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8%;
+  }
+
+  .slide.active {
+    opacity: 1;
+  }
+
+  .slide-content {
+    /* flex: 1; */
+ 
+    z-index: 20;
+  }
+
+  .text-block {
+    /* Posición inicial para todos los elementos */
+    position: relative;
+    z-index: 25;
+  }
+
+  .slide-logo, .slide-logo-left {
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+  }
+
+  .slide.active .slide-logo, .slide.active .slide-logo-left {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: 0s; /* Entrada inmediata */
+  }
+  
+  /* Asegurar que el logo desaparezca inmediatamente después del h1 */
+  .slide:not(.active) .slide-logo, .slide:not(.active) .slide-logo-left {
+    transition-duration: 0.3s;
+    transition-delay: 0s;
+  }
+
+  .slide-title {
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+  }
+
+  .slide.active .slide-title {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: 0.1s; /* Entrada después del logo */
+  }
+
+  .slide-subtitle {
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+  }
+
+  .slide.active .slide-subtitle {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: 0.1s; /* Entrada escalonada con textos */
+  }
+
+  .slide-description {
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+  }
+
+  .slide.active .slide-description {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: 0.2s; /* Entrada escalonada con textos */
+  }
+
+  .text-block .btn {
+    transform: translateY(50px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+    margin-top: 1.5rem;
+    display: inline-block;
+  }
+
+  .person-image {
+    position: absolute;
+    right: 0%;
+    top: 50%;
+    transform: translateY(-50%) translateX(100%);
+    opacity: 0;
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    z-index: 15;
+    width: 50%;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Fixes para Safari */
+    -webkit-transform: translateY(-50%) translateX(100%);
+    -webkit-transition: opacity 0.8s ease-out, -webkit-transform 0.8s ease-out;
+    will-change: transform, opacity;
+    -webkit-transform-origin: center center;
+    transform-origin: center center;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    /* CRÍTICO: Mantener overflow visible para evitar cortes */
+    overflow: visible;
+  }
+  
+  .person-image img {
+    width: auto;
+    height: 100%;
+    max-height: 100vh;
+    max-width: none;
+    /* CAMBIO CRÍTICO: object-fit contain en lugar de cover para mostrar imagen completa */
+    object-fit: contain;
+    object-position: center center;
+    /* Fixes específicos para Safari */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+
+  .slide.active .person-image {
+    transform: translateY(-50%) translateX(0);
+    -webkit-transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    transition-delay: 0s; /* Entrada simultánea con textos */
+  }
+
+  /* Media queries para dispositivos móviles */
+  @media (max-width: 767px) {
+    .person-image {
+      right: 0%;
+      width: 100vw;
+      height: 100vh;
+      overflow: visible;
+      justify-content: center;
+    }
+    
+    .person-image img {
+      height: 100%;
+      width: auto;
+      max-width: none;
+      object-fit: contain;
+      object-position: center center;
+    }
+    
+    .slide {
+      padding: 0 5%;
+    }
+  }
+
+  /* Específico para iPhone 12 Pro Max y dispositivos similares */
+  @media (max-width: 428px) {
+    .person-image {
+      right: 0%;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      justify-content: center;
+    }
+    
+    .person-image img {
+      width: auto;
+      height: 100%;
+      object-fit: contain;
+      object-position: center center;
+    }
+  }
+
+  .elipse-decoration {
+    position: absolute;
+    width: auto;
+    height: 180vh;
+    aspect-ratio: 1;
+    left: 25%;
+    top: 50%;
+    transform: translateY(-50%) translateX(100%);
+    opacity: 0;
+    transition: transform 1s ease-out, opacity 1s ease-out;
+    z-index: 5;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.25), transparent);
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .slide.active .elipse-decoration {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    transition-delay: 0.4s; /* Entrada 0.4s después de imagen y textos */
+  }
+
+  .swiper-pagination {
+    position: absolute;
+    bottom: 75px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 30;
+    pointer-events: auto; /* Permite interacción con bullets */
+  }
+
+  .bullet {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid #fff;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .bullet.active {
+    background: rgba(0, 0, 0, 0.4);
+    transform: scale(1.3);
+  }
+
+  .bullet:hover {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+   @media (max-width: 1023px) {
+    .person-image {
+      position: absolute;
+      right: 0%;
+      top: 50%;
+      transform: translateY(-50%) translateX(90%);
+      opacity: 0;
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      z-index: 15;
+      max-width: 100%;
+      height: 100%;
+      overflow: visible;
+      justify-content: center;
+    }
+
+    .slide.active .person-image {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+      transition-delay: 0s;
+    }
+
+    .person-image img {
+      width: auto;
+      height: 100%;
+      object-fit: contain;
+      object-position: center center;
+    }
+
+  .elipse-decoration {
+ 
+    width: auto;
+    height: 120vh;
+    aspect-ratio: 1;
+    left: 5%;
+    top: 50%;
+    transform: translateY(-50%) translateX(100%);
+    opacity: 0;
+    transition: transform 1s ease-out, opacity 1s ease-out;
+    z-index: 5;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.15), transparent);
+    border-radius: 50%;
+    overflow: hidden;
+ 
+  }
+
+  .slide.active .elipse-decoration {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+    transition-delay: 0.4s; /* Entrada 0.4s después de imagen y textos */
+  }
+  }
+
+@media (max-width: 1023px) {
+  .slide {
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .slide-content {
+    width: 100%;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .slide-content > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slide-title {
+    transform: translateY(50px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+    text-align: center;
+  }
+
+  .slide-subtitle, .slide-description {
+    transform: translateY(50px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .person-image {
+    position: absolute;
+    right: 0%;
+    top: 50%;
+    transform: translateY(-50%) translateX(90%);
+    z-index: 15;
+    justify-content: center;
+  }
+
+  .elipse-decoration {
+    z-index: 5;
+  }
+
+  .slide.active .person-image {
+    transform: translateY(-50%) translateX(0);
+  }
+  
+
+}
+
+@media (max-width: 768px) {
+  .slide-content {
+    width: 100%;
+    z-index: 20;
+  }
+
+  .person-image {
+    right: 0%;
+    z-index: 15;
+    opacity: 0.9;
+    justify-content: center;
+  }
+
+  .person-image img {
+    object-fit: contain;
+    object-position: center center;
+  }
+
+  .elipse-decoration {
+    z-index: 5;
+  }
+
+  .slide-title {
+    transform: translateY(50px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+    text-align: center;
+  }
+
+  .slide-subtitle, .slide-description {
+    transform: translateY(50px);
+    opacity: 0;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+    text-align: center;
+    margin: 0 auto;
+  }
+} 
+
+@media (max-width: 450px) { 
+    .slide { 
+      padding: 10% 5% 15% 5%; 
+      touch-action: pan-y;
+    } 
+
+    .person-image {
+      z-index: 5;
+      position: absolute;
+      width: auto;
+      height: 100%;
+      overflow: visible;
+      justify-content: center;
+    }
+
+    .person-image img {
+      width: auto;
+      height: 100%;
+      object-fit: contain;
+      object-position: center center;
+    }
+
+    .elipse-decoration {
+      z-index: 3;
+    }
+
+    .slide-content {
+      z-index: 10;
+      position: relative;
+    }
+
+    .person-image-0 { 
+      height: 100dvh !important;
+      right: 0% !important; 
+      transform: translateY(-50%) translateX(100%) !important;
+    } 
+    .slide.active .person-image-0 {
+      transform: translateY(-50%) translateX(0) !important;
+    }
+    .person-image-0 img{ 
+      height: 100dvh; 
+      object-fit: contain !important;
+    } 
+
+    .person-image-1 { 
+      height: 100dvh !important;
+      right: 0% !important; 
+      transform: translateY(-50%) translateX(100%) !important;
+    } 
+    .slide.active .person-image-1 {
+      transform: translateY(-50%) translateX(0) !important;
+    }
+    .person-image-1 img{ 
+      height: 100dvh; 
+      object-fit: contain !important;
+    }
+    
+    .person-image-2 { 
+      right: 0% !important; 
+      align-items: center; 
+      transform: translateY(-50%) translateX(100%) !important;
+    } 
+    .slide.active .person-image-2 {
+      transform: translateY(-50%) translateX(0) !important;
+    }
+    .person-image-2 img{ 
+      height: 100dvh; 
+      object-fit: contain !important;
+    } 
+    
+    .person-image-3 { 
+      right: 0% !important; 
+      align-items: center; 
+      transform: translateY(-50%) translateX(100%) !important;
+    } 
+    .slide.active .person-image-3 {
+      transform: translateY(-50%) translateX(0) !important;
+    }
+    .person-image-3 img{ 
+      height: 100dvh; 
+      object-fit: contain !important;
+    } 
+    
+    .person-image-4 { 
+      right: 0% !important; 
+      align-items: center; 
+      transform: translateY(-50%) translateX(100%) !important;
+    } 
+    .slide.active .person-image-4 {
+      transform: translateY(-50%) translateX(0) !important;
+    }
+    .person-image-4 img{ 
+      height: 100dvh; 
+      object-fit: contain !important;
+    } 
+    
+    .person-image-5 { 
+      right: 0% !important; 
+      align-items: center; 
+      transform: translateY(-50%) translateX(100%) !important;
+    } 
+    .slide.active .person-image-5 {
+      transform: translateY(-50%) translateX(0) !important;
+    }
+    .person-image-5 img{ 
+      height: 100dvh; 
+      object-fit: contain !important;
+    }
+
+    /* Mejorar tamaño y accesibilidad de los bullets para móvil */
+    .swiper-pagination {
+      bottom: 60px;
+    }
+    
+    .bullet {
+      width: 12px;
+      height: 12px;
+      margin: 0 0px;
+    }
+}
+</style>
+
+<script>
+// @ts-nocheck
+  // @ts-nocheck
+  /* eslint-disable */
+  // Inicializar slider cuando el DOM esté listo
+  document.addEventListener('DOMContentLoaded', function() {
+    var currentSlide = 0;
+    var slides = document.querySelectorAll('.slide');
+    var bullets = document.querySelectorAll('.bullet');
+    var totalSlides = slides.length;
+    /** @type {ReturnType<typeof setInterval>|null} */
+    var autoplayInterval = null;
+    var slideDuration = 7000; // Duración en milisegundos (aumentado para dar tiempo a la secuencia de salida);
+    
+    // Parámetros de control de intervalos de salida
+    var elipseExitDelay = 0; // Delay de salida de la elipse (inmediato)
+    var imageExitDelay = 400; // Delay de salida de textos e imagen (400ms después de la elipse)
+    
+    // Variables para control táctil
+    var touchStartX = 0;
+    var touchEndX = 0;
+    var minSwipeDistance = 50; // Distancia mínima para considerar un swipe
+    
+    function init() {
+      // Resetear todos los slides para asegurar posiciones iniciales
+      for (var i = 0; i < slides.length; i++) {
+        resetSlideElements(i);
+        slides[i].classList.remove('active');
+      }
+      
+      // Resetear bullets
+      for (var i = 0; i < bullets.length; i++) {
+        bullets[i].classList.remove('active');
+      }
+      
+      // Activar el primer slide con animaciones después de un delay
+      setTimeout(function() {
+        slides[0].classList.add('active');
+        bullets[0].classList.add('active');
+      }, 200);
+      
+      // Configurar bullets
+      for (var i = 0; i < bullets.length; i++) {
+        (function(/** @type {number} */ bulletIndex) {
+          bullets[bulletIndex].addEventListener('click', function() {
+            goToSlide(bulletIndex);
+          });
+        })(i);
+      }
+
+      // Iniciar autoplay
+      startAutoplay();
+      
+      // Verificar y animar botón del primer slide
+      checkAndAnimateButton(0);
+      
+      // Configurar eventos táctiles
+      setupTouchEvents();
+    }
+    
+    // Configurar eventos táctiles para navegación en móvil
+    function setupTouchEvents() {
+      var sliderContainer = document.querySelector('.home-slider-container');
+      
+      if (sliderContainer) {
+        // Evento de inicio de toque
+        sliderContainer.addEventListener('touchstart', function(e) {
+          touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        // Evento de fin de toque
+        sliderContainer.addEventListener('touchend', function(e) {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipe();
+        }, { passive: true });
+      }
+    }
+    
+    // Manejar el gesto de swipe
+    function handleSwipe() {
+      var swipeDistance = touchEndX - touchStartX;
+      
+      // Si el swipe es suficientemente largo
+      if (Math.abs(swipeDistance) > minSwipeDistance) {
+        if (swipeDistance > 0) {
+          // Swipe a la derecha - slide anterior
+          var prevIndex = (currentSlide - 1 + totalSlides) % totalSlides;
+          goToSlide(prevIndex);
+        } else {
+          // Swipe a la izquierda - siguiente slide
+          var nextIndex = (currentSlide + 1) % totalSlides;
+          goToSlide(nextIndex);
+        }
+      }
+    }
+
+    /**
+     * @param {number} slideIndex
+     */
+    function goToSlide(slideIndex) {
+      if (slideIndex === currentSlide) return;
+
+      var currentSlideElement = slides[currentSlide];
+      var currentElipse = currentSlideElement.querySelector('.elipse-decoration');
+      var currentImage = currentSlideElement.querySelector('.person-image');
+      var currentTitle = currentSlideElement.querySelector('.slide-title');
+      var currentSubtitle = currentSlideElement.querySelector('.slide-subtitle');
+      var currentDescription = currentSlideElement.querySelector('.slide-description');
+      var currentButton = currentSlideElement.querySelector('.btn');
+      var currentLogo = currentSlideElement.querySelector('.slide-logo');
+      var currentLogoLeft = currentSlideElement.querySelector('.slide-logo-left');
+      
+      // Función para aplicar la animación de salida a todos los elementos a la vez
+      function animateAllElementsOut() {
+        // Forzar un reflow para asegurar que todos los elementos se animen simultáneamente
+        document.body.offsetHeight;
+        
+        // Botón
+        if (currentButton && 'style' in currentButton) {
+          /** @type {HTMLElement} */ (currentButton).style.cssText = 'transform: translateY(50px); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+        
+        // Título
+        if (currentTitle && 'style' in currentTitle) {
+          /** @type {HTMLElement} */ (currentTitle).style.cssText = 'transform: translateY(50px); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+        
+        // Subtítulo
+        if (currentSubtitle && 'style' in currentSubtitle) {
+          /** @type {HTMLElement} */ (currentSubtitle).style.cssText = 'transform: translateY(50px); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+        
+        // Descripción
+        if (currentDescription && 'style' in currentDescription) {
+          /** @type {HTMLElement} */ (currentDescription).style.cssText = 'transform: translateY(50px); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+        
+        // Elipse
+        if (currentElipse && 'style' in currentElipse) {
+          /** @type {HTMLElement} */ (currentElipse).style.cssText = 'transform: translateY(-50%) translateX(100%); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+        
+        // Imagen lateral - Restaurar la animación original
+        if (currentImage && 'style' in currentImage) {
+          /** @type {HTMLElement} */ (currentImage).style.cssText = 'transform: translateY(-50%) translateX(100%); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+        
+        // Logo - Añadir animación de salida sincronizada con los demás elementos
+        if (currentLogo && 'style' in currentLogo) {
+          /** @type {HTMLElement} */ (currentLogo).style.cssText = 'transform: translateY(50px); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+        
+        // Logo en posición izquierda - Añadir animación de salida sincronizada
+        if (currentLogoLeft && 'style' in currentLogoLeft) {
+          /** @type {HTMLElement} */ (currentLogoLeft).style.cssText = 'transform: translateY(50px); opacity: 0; transition: all 0.5s ease-out; will-change: transform, opacity;';
+        }
+      }
+      
+      // Ejecutar todas las animaciones de salida a la vez
+      animateAllElementsOut();
+      
+      // 3. Cambiar slide después de que termine toda la secuencia de salida (500ms de transición + 100ms de margen)
+       setTimeout(function() {
+        // Ocultar completamente el slide actual antes de cambiar
+        if (slides[currentSlide]) {
+          slides[currentSlide].style.visibility = 'hidden';
+        }
+        
+        // Quitar clases active
+        slides[currentSlide].classList.remove('active');
+        bullets[currentSlide].classList.remove('active');
+        
+        // Resetear posiciones de elementos del slide anterior
+        resetSlideElements(currentSlide);
+        
+        // Cambiar al nuevo slide
+        currentSlide = slideIndex;
+        
+        // Restaurar visibilidad y activar nuevo slide
+        if (slides[currentSlide]) {
+          slides[currentSlide].style.visibility = 'visible';
+        }
+        slides[currentSlide].classList.add('active');
+        bullets[currentSlide].classList.add('active');
+        
+        // Verificar y animar botón del nuevo slide
+        checkAndAnimateButton(currentSlide);
+      }, 600);
+      
+      // Reiniciar autoplay
+      restartAutoplay();
+    }
+
+    /**
+     * @param {number} slideIndex
+     */
+    function checkAndAnimateButton(slideIndex) {
+      var slide = slides[slideIndex];
+      var button = slide.querySelector('.btn');
+      
+      if (button) {
+        // Verificar directamente el contenido del botón
+        var buttonText = button.textContent || '';
+        var buttonHref = button.getAttribute('href') || '';
+        
+        // Si tiene contenido válido, mostrarlo
+        if (buttonText.trim() !== '' && buttonHref.trim() !== '' && buttonHref !== '#') {
+          setTimeout(function() {
+            if (button && 'style' in button) {
+              /** @type {HTMLElement} */ (button).style.transform = 'translateY(0)';
+              /** @type {HTMLElement} */ (button).style.opacity = '1';
+              /** @type {HTMLElement} */ (button).style.transition = 'all 0.8s ease-out';
+            }
+          }, 500);
+        }
+        // Si no tiene contenido, permanece en opacity 0
+      }
+    }
+
+    /**
+     * @param {number} slideIndex
+     */
+    function resetSlideElements(slideIndex) {
+      var slide = slides[slideIndex];
+      var title = slide.querySelector('.slide-title');
+      var subtitle = slide.querySelector('.slide-subtitle');
+      var description = slide.querySelector('.slide-description');
+      var button = slide.querySelector('.btn');
+      var personImage = slide.querySelector('.person-image');
+      var elipseDecoration = slide.querySelector('.elipse-decoration');
+      var logo = slide.querySelector('.slide-logo');
+      var logoLeft = slide.querySelector('.slide-logo-left');
+
+      // Eliminar estilos inline para que CSS tome control
+      if (title && 'style' in title) {
+        /** @type {HTMLElement} */ (title).removeAttribute('style');
+      }
+      if (subtitle && 'style' in subtitle) {
+        /** @type {HTMLElement} */ (subtitle).removeAttribute('style');
+      }
+      if (description && 'style' in description) {
+        /** @type {HTMLElement} */ (description).removeAttribute('style');
+      }
+      if (button && 'style' in button) {
+        // Solo resetear a estado inicial sin eliminar atributos
+        /** @type {HTMLElement} */ (button).style.opacity = '0';
+        /** @type {HTMLElement} */ (button).style.transform = 'translateY(50px)';
+        /** @type {HTMLElement} */ (button).style.transition = 'transform 0.8s ease-out, opacity 0.8s ease-out';
+      }
+      if (personImage && 'style' in personImage) {
+        /** @type {HTMLElement} */ (personImage).removeAttribute('style');
+      }
+      if (elipseDecoration && 'style' in elipseDecoration) {
+        /** @type {HTMLElement} */ (elipseDecoration).removeAttribute('style');
+      }
+      if (logo && 'style' in logo) {
+        /** @type {HTMLElement} */ (logo).removeAttribute('style');
+      }
+      if (logoLeft && 'style' in logoLeft) {
+        /** @type {HTMLElement} */ (logoLeft).removeAttribute('style');
+      }
+    }
+
+    function nextSlide() {
+      var nextIndex = (currentSlide + 1) % totalSlides;
+      goToSlide(nextIndex);
+    }
+
+    function startAutoplay() {
+      if (autoplayInterval !== null) {
+        clearInterval(autoplayInterval);
+      }
+      autoplayInterval = setInterval(function() {
+        nextSlide();
+      }, slideDuration);
+    }
+
+    function restartAutoplay() {
+      if (autoplayInterval !== null) {
+        clearInterval(autoplayInterval);
+      }
+      startAutoplay();
+    }
+
+    // Loop continuo - reiniciar cuando se pausa la página
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        if (autoplayInterval !== null) {
+          clearInterval(autoplayInterval);
+        }
+      } else {
+        startAutoplay();
+      }
+    });
+    
+    // Inicializar
+    init();
+  });
+</script>

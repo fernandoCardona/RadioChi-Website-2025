@@ -1,0 +1,1069 @@
+---
+import AnimatedBg from "./AnimatedBg.astro";
+import SocialRrss from "./Social-rrss.astro";
+import ScrollIndicator from "./Scroll-indicator.astro";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import { useTranslations, getLangFromUrl } from "../../i18n/utils";
+import Starshine from "./Starshine.astro";
+import { IoMdVolumeHigh } from "react-icons/io";
+import { IoMdVolumeOff } from "react-icons/io";
+
+// IntroWebsite.astro - Componente de introducción simplificado
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+
+// No podemos verificar localStorage en el servidor, así que renderizamos condicionalmente con JavaScript
+// El componente se renderizará pero se ocultará inmediatamente si ya se vio
+
+// Importar traducciones desde archivos JSON
+let introTranslations;
+try {
+  introTranslations = await import(`../../i18n/${lang}/introwebsite.json`);
+} catch (error) {
+  introTranslations = await import("../../i18n/es/introwebsite.json");
+}
+
+let footerTranslations;
+try {
+  footerTranslations = await import(`../../i18n/${lang}/footer.json`);
+} catch (error) {
+  footerTranslations = await import("../../i18n/es/footer.json");
+}
+
+const currentTranslations = {
+  welcome: introTranslations.welcome,
+  copyright: footerTranslations.rights || footerTranslations.copyright
+};
+---
+
+<div id="intro-website" class="intro-website" style="display: block; position: fixed; z-index: 9999; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #000; pointer-events: auto;">
+  <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 5;" />
+   
+  <!-- Header personalizado para IntroWebsite - controles de música y LanguageSwitcher -->
+  <div class="absolute top-4 right-2 z-[100] flex items-center space-x-4">
+    <!-- Botón play/pause -->
+    <button 
+      id="intro-play-pause-btn"
+      class="text-white hover:text-pink-500 transition-colors"
+      aria-label="Reproducir/Pausar música"
+    >
+      <svg id="intro-play-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <svg id="intro-pause-icon" class="w-5 h-5 hidden text-pink-500" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+      </svg>
+    </button>
+    
+    <!-- Botón de volumen -->
+    <button 
+      id="intro-volume-btn"
+      class="text-white hover:text-pink-500 transition-colors rounded-md active:scale-95 transition-transform"
+      aria-label="Control de volumen"
+    >
+      <IoMdVolumeHigh id="intro-volume-icon" className="w-5 h-5" />
+      <IoMdVolumeOff id="intro-mute-icon" className="w-5 h-5 text-pink-500 hidden overflow-visible" />
+    </button>
+    
+    <!-- LanguageSwitcher -->
+    <LanguageSwitcher id="header-lang-switcher" />
+  </div>
+    
+ 
+  
+  <div class="intro-section relative w-full h-full border">
+    <div class="w-[75%] welcome-text top-[20%] lg:top-[18%] xl:top-[14%]">
+      <span class=" text-6xl lg:text-7xl font-bold text-transparent [-webkit-text-stroke:2.5px_white] [-webkit-text-fill-color:rgba(255,255,255,0.1)]  ">{currentTranslations.welcome}</span>
+    </div>
+    <!-- Logo centrado -->
+    <div class="logo-center relative box">
+      <div class="corazon w-80 h-80 lg:w-100 lg:h-100 relative flex justify-center items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 528.38 494.34" class="w-full h-full">
+        <defs><style>.cls-1{fill:#fff;}</style></defs>
+        <g id="Capa_2" data-name="Capa 2">
+          <g id="Capa_1-2" data-name="Capa 1">
+            <path class="cls-1" d="M283,164.77l-10.92,1.53v61.3l10.2-1.44c8.1-1.14,14.19-4.72,18.62-10.95h0c4.48-6.29,6.75-14.24,6.75-23.62s-2.21-16.47-6.58-21.38S290.91,163.66,283,164.77Z"/>
+            <path class="cls-1" d="M104,192.87c-2.33-1.86-5.54-2.48-9.83-1.87l-44.7,7v25.39l44-6.89c4.42-.62,7.78-2.23,10.27-4.93h0a14.13,14.13,0,0,0,3.64-10.08C107.38,197.5,106.28,194.68,104,192.87Z"/>
+            <path class="cls-1" d="M518.69,125.66l-.88-1.48-.07-.07a60.34,60.34,0,0,0-27.32-23.34A68.2,68.2,0,0,0,463,95.28a87.45,87.45,0,0,0-12,.86,84.44,84.44,0,0,0-37.92,15c-1.82,1.31-3.59,2.69-5.29,4.13V0L350.62,154.45c-.8-1.6-1.65-3.17-2.58-4.7a59.4,59.4,0,0,0-28.43-24.36,69.28,69.28,0,0,0-26.92-5.16,90.21,90.21,0,0,0-12.32.88l-46,6.46-11.83,1.66v7.07l-19.17-55L189.72,42l-12.4,39.71-20,64.15-7.65,22.5c-.19-.31-.39-.61-.6-.91a47.07,47.07,0,0,0-23.86-18,60.54,60.54,0,0,0-20.11-3.25,80.83,80.83,0,0,0-11,.79h-.11L11.72,159.27,0,161V310.25l15.66-2.2,35.74-5,11.83-1.66v-36.1l21.93-3.44,12.59,24.64,4.46,8.72,9.69-1.37,39-5.48,19.23-2.7h0l2.28-.32a82.68,82.68,0,0,0-10.74,16.58c-6.16,12.62-9.29,27-9.29,42.81s3.16,29.47,9.39,40.46a55.25,55.25,0,0,0,27.29,24.25,69.82,69.82,0,0,0,27.21,5.08,100.7,100.7,0,0,0,14.09-1,82.73,82.73,0,0,0,33.75-12.3,79.44,79.44,0,0,0,9-6.82v11.51l15.65-2.2,35.75-5L336.36,397V361.34l6.09-3.52V396.1l15.66-2.2,32.34-4.54v105l69-248,4.73-1.14a83.4,83.4,0,0,0,55-43.24,84.33,84.33,0,0,0,9.18-38.72C528.38,149.1,525.12,136.47,518.69,125.66ZM282.21,345.25a56.56,56.56,0,0,1-8,25.24,58.89,58.89,0,0,1-18.6,19,64.47,64.47,0,0,1-26.31,9.6,79.69,79.69,0,0,1-11,.8,54.46,54.46,0,0,1-21.2-4,43.07,43.07,0,0,1-21.28-18.91c-4.86-8.56-7.32-19.17-7.32-31.54a75.41,75.41,0,0,1,7.24-33.37,63.71,63.71,0,0,1,20.87-24.41c9-6.3,19.75-10.37,32-12.09,9.8-1.38,18.72-.62,26.52,2.23a40.1,40.1,0,0,1,19,14.12,44.72,44.72,0,0,1,8.14,23.26l.19,2.42-35.41,5-.47-2.39c-1-5-3.1-8.72-6.44-11.3s-7.36-3.42-12.45-2.7A22.4,22.4,0,0,0,211.07,317c-4.09,6.37-6.16,14.49-6.16,24.14s2,17,6,22.09c3.8,4.86,9,6.74,16,5.77a21.15,21.15,0,0,0,12.87-6.48,26.55,26.55,0,0,0,6.74-13.63l.34-1.82,35.59-5Zm-45.87-82.49v-.31l-20.58,2.89-25.89-74.65-25.42,81.86L149,274.73h0l-39,5.48-17.12-33.5-43.38,6.8v35.91l-35.75,5V172.86L96,160.6c9.24-1.29,17.53-.68,24.66,1.82a33.63,33.63,0,0,1,17.06,12.8c4,5.93,6.11,13.28,6.11,21.86a45.28,45.28,0,0,1-4.94,20.78h0a50.17,50.17,0,0,1-11.69,15l9.11,17.45,34.08-100.2,20.09-64.33,20.44,58.63,25.46,68.28V141.18l45.94-6.46c11.94-1.67,22.71-.55,32,3.35a45.91,45.91,0,0,1,22,18.82c5.15,8.49,7.77,18.69,7.77,30.3a69.32,69.32,0,0,1-7.69,32.24h0A67.86,67.86,0,0,1,314.79,244A72.4,72.4,0,0,1,283,256.2Zm155.6,109.93-35.74,5V331.44l-33.59,19.39v31.61l-35.74,5V272.08l35.74-5v42.5l33.59-19.39V262.34l35.74-5Zm13.81,23v-156l-66.86,7.93L394,79.66V194.39l65-7.55ZM507,195.69a69.61,69.61,0,0,1-46,36.13l8.8-38.48c.47-.58.94-1.17,1.38-1.8,4.71-6.61,7.09-14.66,7.09-23.93s-2.32-16.42-6.91-21.58a17.8,17.8,0,0,0-14-6.18,26.32,26.32,0,0,0-3.78.28,25.92,25.92,0,0,0-18.29,11.32c-4.71,6.6-7.09,14.65-7.09,23.92,0,.83,0,1.64.06,2.44L409.58,180V132.52a70.14,70.14,0,0,1,43.27-22.77c12-1.67,22.74-.46,32.07,3.62a46.93,46.93,0,0,1,22,19.31h0c5.15,8.66,7.76,18.93,7.76,30.54A70.75,70.75,0,0,1,507,195.69Z"/>
+          </g>
+        </g>
+        </svg>
+      </div>
+      <div class='flotante aura1'></div>
+      <div class='flotante aura2'></div>
+      <div class='flotante aura3'></div>
+      <div class='flotante aura4'></div>
+      <div class='flotante aura5'></div>
+      <div class='flotante aura6'></div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+      <span class="scroll-down">Scroll down</span>
+      <ScrollIndicator />
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <footer class="intro-footer">
+    <div class="text-center text-white text-sm space-y-3">
+      <SocialRrss />
+      <p>&copy; 2025 Radiochi. {currentTranslations.copyright}</p>
+    </div>
+  </footer>
+</div>
+
+<style>
+  /* Animación de latido */
+  *{
+  box-sizing:border-box;
+  }
+  html{
+    font-family:'verdana';
+  }
+  /* body{
+    margin:0;
+    display:grid;
+    place-items:center;
+    min-height:100dvh;
+    background-color:black;
+    background: radial-gradient(circle, #fff 10%, #161718 50%);
+  }
+
+  .fijo {
+    position:relative;
+    border:none;
+    padding: 0.5rem 1rem;
+    border-radius:40rem;
+    height:15rem;
+    width:15rem;
+    color:white;
+    display:grid;
+    place-items:center;
+  }
+*/
+
+  .flotante{
+    position:absolute;
+    left:0;
+    top:0;
+    height: 100%;
+    width: 100%;
+    border-radius:10rem;
+  } 
+
+  /* Animaciones automáticas para todas las pantallas */
+  .aura1{
+    box-shadow:0px 0px 10px 0px white;
+    animation:escalar 4s infinite linear;
+    animation-delay: -0.3s;
+  }
+
+  .aura2{
+    box-shadow:0px 0px 10px 0px white;
+    animation:escalar 3.5s infinite linear;
+    animation-delay: -0.5s;
+  }
+
+  .aura3{
+    box-shadow:0px 0px 10px 0px WHITE;
+    animation:escalar 3s infinite linear;
+    animation-delay: -1s;
+  }
+
+  .aura4{
+    box-shadow:0px 0px 10px 0px white;
+    animation:escalar 2.5s infinite linear;
+    animation-delay: -1.5s;
+  }
+
+  .aura5{
+    box-shadow:0px 0px 10px 0px white;
+    animation:escalar 2s infinite linear;
+    animation-delay: -2s;
+  }
+
+  .aura6{
+    box-shadow:0px 0px 10px 0px white;
+    animation:escalar 1.5s infinite linear;
+    animation-delay: -2.5s;
+  }
+
+  .corazon{
+    font-size:2rem;
+    animation:latido 3s infinite linear;
+  }
+
+  @keyframes escalar{
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100%{
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+  @keyframes latido {
+    0% {
+      transform: scale(0.95);
+      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    25% {
+      transform: scale(1.02);
+      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    50% {
+      transform: scale(0.95);
+      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    75% {
+      transform: scale(1.02);
+      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    100% {
+      transform: scale(0.95);
+      animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+  }
+
+  /* Fin Animación de latido */
+  .intro-website {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: block;
+    background: #000;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transform-origin: center center;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    pointer-events: auto;
+  }
+  
+  /* Estilos para asegurar que el contenido principal sea visible */
+  body {
+    background-color: #000 !important;
+  }
+  
+  /* Asegurar que el contenido principal esté visible detrás de la intro */
+  body .fullpage-container,
+  body .fullpage-wrapper,
+  body #fullpage-wrapper,
+  body .section,
+  body .fp-section,
+  body .fp-tableCell {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    z-index: 1;
+  }
+  
+  /* Asegurar que el contenido principal esté visible después de la animación */
+  body.intro-finished .fullpage-container,
+  body.intro-finished .fullpage-wrapper,
+  body.intro-finished #fullpage-wrapper,
+  body.intro-finished .section,
+  body.intro-finished .fp-section,
+  body.intro-finished .fp-tableCell {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    z-index: 1;
+  }
+  
+  /* Forzar visibilidad en producción */
+  #fullpage {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+  
+  /* Header específico para IntroWebsite */
+  .intro-header {
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+  }
+  
+  /* Asegurar que el LanguageSwitcher desplegable funcione en IntroWebsite */
+  .intro-header .language-dropdown-menu {
+    z-index: 10001 !important;
+    pointer-events: auto !important;
+  }
+  
+  .intro-header .language-dropdown-btn {
+    pointer-events: auto !important;
+    z-index: 10001 !important;
+  }
+  
+  .intro-header .vlt-language-switcher {
+    pointer-events: auto !important;
+    z-index: 10001 !important;
+  }
+  
+  .intro-header .language-dropdown-link {
+    pointer-events: auto !important;
+  }
+  
+  /* Forzar que todos los elementos interactivos en IntroWebsite funcionen */
+  .intro-website .intro-header,
+  .intro-website .intro-header *,
+  .intro-website .intro-footer,
+  .intro-website .intro-footer * {
+    pointer-events: auto !important;
+  }
+  
+  /* Asegurar que AnimatedBg no bloquee los eventos */
+  .intro-website .animated-bg,
+  .intro-website .animated-bg * {
+    pointer-events: none !important;
+    z-index: 1 !important;
+  }
+  
+  /* Forzar z-index del header por encima de todo */
+  .intro-website .intro-header {
+    z-index: 10000 !important;
+    position: relative !important;
+  }
+
+  .intro-website.hidden {
+    display: none !important;
+  }
+
+  .intro-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Welcome text positioning */
+  .welcome-text {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 15;
+  }
+
+  /* Footer positioning */
+  .intro-footer {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+  }
+
+  /* Logo centrado */
+  .logo-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    cursor: pointer;
+  }
+
+  .logo-center svg {
+    width: 25vw;
+    height: auto;
+    position: relative;
+    z-index: 20;
+    /* Mejorar calidad del renderizado vectorial durante transformaciones */
+    shape-rendering: geometricPrecision;
+    text-rendering: geometricPrecision;
+  }
+
+  /* Mantener trazos nítidos si el SVG los tuviera */
+  .logo-center svg * {
+    vector-effect: non-scaling-stroke;
+  }
+  
+  /* Halos por debajo del logo */
+  .aura1, .aura2, .aura3, .aura4, .aura5, .aura6 {
+    z-index: 5;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @media (min-width: 768px) {
+    .logo-center svg {
+      width: 30vw;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .logo-center svg {
+      width: 40vw;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .logo-center svg {
+      width: 50vw;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .logo-center svg {
+      width: 65vw;
+    }
+  }
+</style>
+
+<script>
+// @ts-nocheck
+/* eslint-disable */
+
+// Verificación inmediata para evitar flash
+(function() {
+  const hasSeenIntro = localStorage.getItem('radiochiIntroSeen');
+  const introElement = document.getElementById('intro-website');
+  
+  if (hasSeenIntro && introElement) {
+    // Si ya se vio, mantener oculto
+    introElement.style.display = 'none';
+  } else if (introElement) {
+    // Si no se ha visto, mostrar
+    introElement.style.display = 'block';
+  }
+})();
+
+// Importar funciones de gestión de idioma
+import { initializeLanguage, setCurrentLangCookie, getCurrentLangFromCookie } from '../../i18n/utils.js';
+
+// Función para detectar idioma de la URL
+function getCurrentLanguageFromURL() {
+  const pathSegments = window.location.pathname.split('/');
+  const langSegment = pathSegments[1];
+  const supportedLangs = ['en', 'ca', 'fr', 'it', 'de'];
+  return supportedLangs.includes(langSegment) ? langSegment : 'es';
+}
+
+// Función para construir URL con idioma
+function buildURLWithLang(hash) {
+  const currentLang = getCurrentLanguageFromURL();
+  if (currentLang === 'es') {
+    return `/${hash}`;
+  } else {
+    return `/${currentLang}/${hash}`;
+  }
+}
+
+// Inicializar idioma al cargar IntroWebsite
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar idioma y establecer cookie si es primera visita
+  const currentLang = initializeLanguage();
+  if (window.DEV_LOGS) console.log('🌐 Idioma inicializado en IntroWebsite:', currentLang);
+  
+  // Solo redirigir si Layout no lo ha hecho ya (evitar doble redirección)
+  // Comprobar si la URL actual coincide con el idioma esperado
+  const urlLang = window.location.pathname.split('/')[1] || 'es';
+  const isCorrectUrl = (currentLang === 'es' && (urlLang === 'es' || urlLang === '')) || 
+                       (currentLang !== 'es' && urlLang === currentLang);
+  
+  if (!isCorrectUrl) {
+    if (currentLang !== 'es' && urlLang !== currentLang) {
+      window.location.href = `/${currentLang}/`;
+    } else if (currentLang === 'es' && urlLang !== 'es' && urlLang !== '') {
+      window.location.href = '/';
+    }
+  }
+});
+
+// Escuchar cambios de idioma desde LanguageSwitcher
+window.addEventListener('languageChanged', function(event) {
+  const newLang = event.detail.language;
+  setCurrentLangCookie(newLang);
+  if (window.DEV_LOGS) console.log('🔄 Idioma actualizado en IntroWebsite:', newLang);
+});
+
+let onScrollHandler = null;
+let wheelHandler = null;
+let touchStartHandler = null;
+let keyDownHandler = null;
+let animationCompleted = false;
+
+// IMPORTANTE: Primero forzamos que el contenido principal esté visible desde el inicio
+// Esto asegura que la web esté completamente renderizada debajo de la intro
+// ANTES de verificar localStorage o cookies
+
+// Forzar visibilidad de elementos principales inmediatamente
+const mainElements = [
+  'body',
+  '.fullpage-container', 
+  '.fullpage-wrapper', 
+  '#fullpage-wrapper',
+  '#fullpage',
+  '.section',
+  '.fp-section',
+  '.fp-tableCell',
+  '.main-content'
+];
+
+// Aplicar estilos inmediatamente para evitar parpadeos
+mainElements.forEach(selector => {
+  const style = document.createElement('style');
+  style.textContent = `
+    ${selector} {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 1 !important;
+    }
+  `;
+  document.head.appendChild(style);
+});
+
+// Asegurar que las variables CSS estén configuradas correctamente
+document.documentElement.style.setProperty('--main-content-display', 'block');
+document.documentElement.style.setProperty('--main-content-visibility', 'visible');
+document.documentElement.style.setProperty('--main-content-opacity', '1');
+
+// Verificamos si ya se vio la intro usando solo cookies
+let hasSeenIntro = false;
+try {
+  // Usar solo cookies para verificar si ya se vio la intro
+  hasSeenIntro = document.cookie.split(';').some(c => c.trim().startsWith('radiochiIntroSeen=true'));
+} catch (e) {
+  console.error('Error al verificar cookie radiochiIntroSeen:', e);
+}
+
+// Si ya se vio, ocultar inmediatamente para evitar flash
+if (hasSeenIntro) {
+  document.documentElement.style.setProperty('--intro-display', 'none');
+} else {
+  document.documentElement.style.setProperty('--intro-display', 'block');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const introWebsite = document.getElementById('intro-website');
+  
+  if (hasSeenIntro) {
+    // Si ya vio la intro, ocultar inmediatamente y mostrar el contenido principal
+    if (introWebsite) {
+      introWebsite.style.display = 'none';
+    }
+    // Marcar estado de post-intro y notificar al home
+    document.body.classList.add('intro-finished');
+    window.dispatchEvent(new Event('introFinished'));
+    
+    // Asegurar que todos los elementos principales sean visibles
+    const elementsToShow = [
+      '.fullpage-container', 
+      '.fullpage-wrapper', 
+      '#fullpage-wrapper',
+      '#fullpage',
+      '.section',
+      '.fp-section',
+      '.fp-tableCell',
+      '.main-content'
+    ];
+    
+    elementsToShow.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(el => {
+        if (el) {
+          el.style.display = 'block';
+          el.style.opacity = '1';
+          el.style.visibility = 'visible';
+          el.style.zIndex = '1';
+        }
+      });
+    });
+    
+    // Habilitar fullpage
+    if (window.fp) {
+      window.fp.setAllowScrolling(true);
+      window.fp.setKeyboardScrolling(true);
+    }
+    
+    // Redirigir a #home si no está ya ahí
+    const expectedHomeURL = buildURLWithLang('#home');
+    const currentURL = window.location.pathname + window.location.hash;
+    if (currentURL !== expectedHomeURL) {
+      window.history.replaceState({}, '', expectedHomeURL);
+    }
+  } else {
+    // Primera visita - configurar intro
+    if (!introWebsite) {
+      console.error('❌ Elemento intro-website no encontrado');
+      return;
+    }
+    
+    // IMPORTANTE: Asegurar que el contenido principal sea visible ANTES de mostrar la intro
+    // Esto garantiza que la web esté completamente renderizada debajo de la intro
+    mainElements.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(el => {
+        if (el) {
+          el.style.display = 'block';
+          el.style.visibility = 'visible';
+          el.style.opacity = '1';
+          el.style.zIndex = '1';
+        }
+      });
+    });
+    
+    // Ahora asegurar que la intro sea visible y esté por encima
+    introWebsite.style.display = 'block';
+    introWebsite.style.visibility = 'visible';
+    introWebsite.style.opacity = '1';
+    introWebsite.style.zIndex = '9999';
+    introWebsite.style.backgroundColor = '#000';
+    introWebsite.style.pointerEvents = 'auto';
+    
+    // Cambiar URL a #IntroWebsite para primera visita
+    const expectedIntroURL = buildURLWithLang('#IntroWebsite');
+    const currentIntroURL = window.location.pathname + window.location.hash;
+    if (currentIntroURL !== expectedIntroURL) {
+      window.history.replaceState({}, '', expectedIntroURL);
+    }
+    
+    // Configurar altura del body para permitir scroll
+    document.body.style.height = '200vh';
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    
+    // Deshabilitar fullpage temporalmente
+    if (window.fp) {
+      window.originalScrollSettings = {
+        bodyOverflow: document.body.style.overflow,
+        htmlOverflow: document.documentElement.style.overflow,
+        bodyHeight: document.body.style.height
+      };
+      window.fp.setAllowScrolling(false);
+      window.fp.setKeyboardScrolling(false);
+    }
+    
+    // Guardar estado en cookies como fallback para localStorage
+    try {
+      document.cookie = 'radiochiIntroSeen=false; max-age=3600; path=/; SameSite=Lax';
+    } catch (e) {
+      console.error('Error al guardar cookie inicial:', e);
+    }
+    
+    // Ocultar scrollbar
+    document.body.style.scrollbarWidth = 'none';
+    document.documentElement.style.scrollbarWidth = 'none';
+    const style = document.createElement('style');
+    style.textContent = `
+      body::-webkit-scrollbar,
+      html::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Función para iniciar animación de zoom
+    const startZoomAnimation = () => {
+      console.log('[IntroWebsite] startZoomAnimation - Iniciando animación de zoom');
+      
+      // Eliminar todos los event listeners para evitar múltiples activaciones
+      if (onScrollHandler) window.removeEventListener('scroll', onScrollHandler, { capture: true });
+      if (wheelHandler) window.removeEventListener('wheel', wheelHandler, { capture: true });
+      if (touchStartHandler) window.removeEventListener('touchstart', touchStartHandler, { capture: true });
+      if (touchMoveHandler) window.removeEventListener('touchmove', touchMoveHandler, { capture: true });
+      if (keyDownHandler) window.removeEventListener('keydown', keyDownHandler, { capture: true });
+      
+      // Verificar que el elemento introWebsite existe
+      if (!introWebsite) {
+        console.error('[IntroWebsite] El elemento introWebsite no existe');
+        finalizarIntro();
+        return;
+      }
+
+      // Obtener el SVG del logo
+      const svg = document.querySelector('.logo-center svg');
+      if (!svg) {
+        console.error('[IntroWebsite] El elemento SVG del logo no existe');
+        finalizarIntro();
+        return;
+      }
+      
+      console.log('[IntroWebsite] Preparando elementos para la animación');
+      
+      // IMPORTANTE: Forzar que el contenido principal esté completamente visible
+      // Esto es crítico para que la web se vea correctamente al desaparecer la intro
+      const style = document.createElement('style');
+      style.textContent = `
+        body, 
+        .fullpage-container, 
+        .fullpage-wrapper, 
+        #fullpage-wrapper,
+        #fullpage,
+        .section,
+        .fp-section,
+        .fp-tableCell,
+        .main-content {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          z-index: 1 !important;
+        }
+      `;
+      document.head.appendChild(style);
+      
+      // Asegurar que el intro esté por encima de todo
+      if (introWebsite) {
+        introWebsite.style.setProperty('z-index', '9999', 'important');
+        introWebsite.style.setProperty('background-color', '#000', 'important');
+      }
+      
+      // Asegurar que el body tenga el fondo correcto
+      document.body.style.setProperty('background-color', '#000', 'important');
+
+      console.log('[IntroWebsite] Iniciando animación de zoom');
+      
+      // Iniciar la animación
+      let startTime = null;
+      const duration = 1000; // 1 segundo para la animación
+      function animate(currentTime) {
+        if (!startTime) startTime = currentTime;
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const scale = 1 + (progress * 19); // Escala de 1 a 20
+        const opacity = 1 - progress; // Opacidad de 1 a 0
+        
+        // Escalar solo el SVG directamente para mantener la nitidez vectorial
+        if (svg) {
+          svg.style.setProperty('transform', `scale(${scale})`, 'important');
+          svg.style.setProperty('transform-origin', 'center center', 'important');
+        }
+        
+        // Reducir la opacidad del intro para revelar el contenido que ya está debajo
+        if (introWebsite) {
+          introWebsite.style.setProperty('opacity', opacity.toString(), 'important');
+        }
+        
+        // Continuar la animación o finalizarla
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          console.log('[IntroWebsite] Animación completada, finalizando intro');
+          
+          // Finalizar la intro (ocultar completamente)
+          finalizarIntro();
+        }
+      }
+      
+      // Iniciar la animación
+      requestAnimationFrame(animate);
+    };
+
+    // Función para finalizar la intro
+    const finalizarIntro = () => {
+      console.log('[IntroWebsite] finalizarIntro - Ocultando intro para mostrar contenido principal');
+      
+      // Marcar intro como vista solo con cookie (1 hora) con manejo de errores
+    try {
+      // Usar solo cookies con una duración de 1 hora
+      document.cookie = 'radiochiIntroSeen=true; max-age=3600; path=/; SameSite=Lax';
+      console.log('[IntroWebsite] Cookie radiochiIntroSeen guardada correctamente');
+    } catch (e) {
+      console.error('Error al guardar cookie radiochiIntroSeen:', e);
+    }
+      
+      // Marcar que la intro ya se ha visto
+      document.body.classList.add('intro-finished');
+      
+      // Disparar evento para notificar que la intro ha finalizado
+      window.dispatchEvent(new Event('introFinished'));
+      
+      // Simplemente ocultar la intro completamente
+      if (introWebsite) {
+        // Asegurar que la transición sea suave
+        introWebsite.style.transition = 'opacity 300ms ease-out';
+        introWebsite.style.opacity = '0';
+        
+        // Asegurar que el contenido principal es visible
+        mainElements.forEach(selector => {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(el => {
+            if (el) {
+              el.style.display = 'block';
+              el.style.visibility = 'visible';
+              el.style.opacity = '1';
+            }
+          });
+        });
+        
+        setTimeout(() => {
+          // Ocultar completamente la intro
+          introWebsite.style.display = 'none';
+          introWebsite.style.visibility = 'hidden';
+          introWebsite.style.zIndex = '-1';
+          
+          // Navegar al home sin recargar la página
+          const targetHash = '#home';
+          if (window.location.hash !== targetHash) {
+            window.location.hash = targetHash;
+          }
+          
+          // Notificar que la intro ha finalizado
+          window.dispatchEvent(new Event('introFinished'));
+          
+          console.log('[IntroWebsite] Intro finalizada, contenido principal visible');
+        }, 300);
+      }
+    };
+
+    // Implementación de detección de eventos para activar la animación
+    let triggered = false;
+    let accumulatedDY = 0;
+    let touchStartY = null;
+    const startY = window.scrollY || 0;
+    
+    // Guardar referencias a los handlers para poder eliminarlos después
+    let onScrollHandler, wheelHandler, touchStartHandler, touchMoveHandler, keyDownHandler;
+
+    // Función principal para activar la animación una sola vez
+    function triggerOnce() {
+      console.log('[IntroWebsite] triggerOnce -> Activando animación');
+      
+      // Evitar múltiples activaciones
+      if (triggered) {
+        console.log('[IntroWebsite] Ya activado, ignorando');
+        return;
+      }
+      
+      // Marcar como activado
+      triggered = true;
+      
+      // Eliminar todos los event listeners inmediatamente
+      removeAllEventListeners();
+      
+      // Iniciar la animación de zoom
+      console.log('[IntroWebsite] Llamando a startZoomAnimation()');
+      startZoomAnimation();
+    }
+    
+    // Función para eliminar todos los event listeners
+    function removeAllEventListeners() {
+      console.log('[IntroWebsite] Eliminando todos los event listeners');
+      
+      if (onScrollHandler) window.removeEventListener('scroll', onScrollHandler, { capture: true });
+      if (wheelHandler) window.removeEventListener('wheel', wheelHandler, { capture: true });
+      if (touchStartHandler) window.removeEventListener('touchstart', touchStartHandler, { capture: true });
+      if (touchMoveHandler) window.removeEventListener('touchmove', touchMoveHandler, { capture: true });
+      if (keyDownHandler) window.removeEventListener('keydown', keyDownHandler, { capture: true });
+      
+      // Eliminar también el click en el logo
+      const logoCenter = document.querySelector('.logo-center');
+      if (logoCenter) {
+        logoCenter.removeEventListener('click', logoClickHandler);
+      }
+    }
+
+    // Handler para el evento de scroll
+    function onScroll(e) {
+      console.log('[IntroWebsite] onScroll', { scrollY: window.scrollY });
+      if (triggered) return;
+      
+      const delta = Math.abs((window.scrollY || 0) - startY);
+      console.log('[IntroWebsite] Delta de scroll:', delta);
+      
+      if (delta >= 50) { // Reducido de 100 a 50 para mayor sensibilidad
+        console.log('[IntroWebsite] Delta de scroll suficiente, activando');
+        triggerOnce();
+      }
+    }
+
+    // Handler para el evento de rueda del ratón
+    function onWheel(e) {
+      console.log('[IntroWebsite] onWheel', { deltaY: e && e.deltaY });
+      if (triggered) return;
+      
+      // Acumular el movimiento de la rueda
+      accumulatedDY += Math.abs(e.deltaY || 0);
+      console.log('[IntroWebsite] Acumulado de rueda:', accumulatedDY);
+      
+      if (accumulatedDY >= 50) { // Reducido de 100 a 50 para mayor sensibilidad
+        console.log('[IntroWebsite] Acumulado de rueda suficiente, activando');
+        triggerOnce();
+      }
+    }
+
+    // Handler para el inicio de eventos táctiles
+    function onTouchStart(e) {
+      if (triggered) return;
+      if (e.touches && e.touches.length > 0) {
+        touchStartY = e.touches[0].clientY;
+        console.log('[IntroWebsite] onTouchStart', { touchStartY });
+      }
+    }
+
+    // Handler para el movimiento de eventos táctiles
+    function onTouchMove(e) {
+      if (triggered || touchStartY == null) return;
+      
+      const currentY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : null;
+      if (currentY !== null) {
+        const touchDelta = Math.abs(currentY - touchStartY);
+        accumulatedDY += touchDelta;
+        
+        console.log('[IntroWebsite] onTouchMove', { 
+          currentY, 
+          touchStartY, 
+          touchDelta,
+          accumulatedDY 
+        });
+        
+        touchStartY = currentY;
+        
+        if (accumulatedDY >= 50) { // Reducido de 100 a 50 para mayor sensibilidad
+          console.log('[IntroWebsite] Acumulado táctil suficiente, activando');
+          triggerOnce();
+        }
+      }
+    }
+    
+    // Handler para eventos de teclado
+    function onKeyDown(e) {
+      console.log('[IntroWebsite] onKeyDown', { key: e.key });
+      if (triggered) return;
+      
+      // Activar con cualquier tecla para mayor sensibilidad
+      console.log('[IntroWebsite] Tecla presionada, activando');
+      triggerOnce();
+    }
+    
+    // Handler para el click en el logo
+    function logoClickHandler(e) {
+      console.log('[IntroWebsite] Click en logo');
+      e.preventDefault();
+      e.stopPropagation();
+      triggerOnce();
+    }
+
+    // Registrar todos los listeners con opciones adecuadas
+    console.log('[IntroWebsite] Registrando event listeners');
+    
+    const listenerOpts = { passive: true, capture: true };
+    
+    // Asignar handlers a variables para poder eliminarlos después
+    onScrollHandler = onScroll;
+    wheelHandler = onWheel;
+    touchStartHandler = onTouchStart;
+    touchMoveHandler = onTouchMove;
+    keyDownHandler = onKeyDown;
+    
+    // Registrar todos los event listeners
+    window.addEventListener('scroll', onScrollHandler, listenerOpts);
+    window.addEventListener('wheel', wheelHandler, listenerOpts);
+    window.addEventListener('touchstart', touchStartHandler, listenerOpts);
+    window.addEventListener('touchmove', touchMoveHandler, listenerOpts);
+    window.addEventListener('keydown', keyDownHandler, listenerOpts);
+
+    // Registrar click en el logo
+    console.log('[IntroWebsite] Registrando click en logo');
+    const logoCenter = document.querySelector('.logo-center');
+    if (logoCenter) {
+      console.log('[IntroWebsite] Logo encontrado, añadiendo event listener');
+      logoCenter.addEventListener('click', logoClickHandler);
+      
+      // Hacer el logo claramente clickable
+      logoCenter.style.cursor = 'pointer';
+    } else {
+      console.log('[IntroWebsite] Logo no encontrado');
+    }
+    
+    // Activar la animación después de un tiempo si no se ha activado por otros medios
+    console.log('[IntroWebsite] Configurando timeout de seguridad (5s)');
+    setTimeout(() => {
+      if (!triggered) {
+        console.log('[IntroWebsite] Activando por timeout de seguridad');
+        triggerOnce();
+      }
+    }, 5000); // 5 segundos de timeout
+
+    // Inicializar controles de música del intro (misma funcionalidad que Header)
+    initIntroMusicControls();
+  }
+});
+
+// Funcionalidad de controles de música (copiada del Header)
+function initIntroMusicControls() {
+  // Estado global del volumen (mismo que el header)
+  if (!window.volumeState) {
+    window.volumeState = { isMuted: false, volume: 80 };
+  }
+
+  // Control play/pause del intro
+  const btn = document.getElementById('intro-play-pause-btn');
+  const playIcon = document.getElementById('intro-play-icon');
+  const pauseIcon = document.getElementById('intro-pause-icon');
+  if (btn && playIcon && pauseIcon) {
+    const updateIcons = (playing) => {
+      if (playing) {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+      } else {
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+      }
+    };
+
+    updateIcons(true);
+    btn.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('headerPlayPauseToggle'));
+    });
+    window.addEventListener('playerPlayState', (e) => {
+      const playing = !!(e && e.detail && e.detail.isPlaying);
+      updateIcons(playing);
+    });
+  }
+
+  // Control de volumen del intro
+  const volumeBtn = document.getElementById('intro-volume-btn');
+  const volumeIcon = document.getElementById('intro-volume-icon');
+  const muteIcon = document.getElementById('intro-mute-icon');
+  if (volumeBtn && volumeIcon && muteIcon) {
+    const updateVolumeIcon = (isMuted) => {
+      if (isMuted) {
+        volumeIcon.classList.add('hidden');
+        muteIcon.classList.remove('hidden');
+        volumeBtn.classList.remove('text-white');
+        volumeBtn.classList.add('text-pink-300');
+      } else {
+        volumeIcon.classList.remove('hidden');
+        muteIcon.classList.add('hidden');
+        volumeBtn.classList.add('text-white');
+        volumeBtn.classList.remove('text-pink-300');
+      }
+    };
+
+    updateVolumeIcon(window.volumeState.isMuted);
+    window.addEventListener('headerVolumeToggle', (e) => {
+      const detail = e?.detail || {};
+      const state = window.volumeState || { isMuted: false, volume: 80 };
+      state.isMuted = !!detail.isMuted;
+      state.volume = typeof detail.volume === 'number' ? detail.volume : state.volume;
+      window.volumeState = state;
+      updateVolumeIcon(state.isMuted);
+    });
+    volumeBtn.addEventListener('click', () => {
+      const state = window.volumeState || { isMuted: false, volume: 80 };
+      state.isMuted = !state.isMuted;
+      window.volumeState = state;
+      updateVolumeIcon(state.isMuted);
+      window.dispatchEvent(new CustomEvent('headerVolumeToggle', {
+        detail: { isMuted: state.isMuted, volume: state.volume }
+      }));
+    });
+  }
+}
+</script>

@@ -1,0 +1,482 @@
+---
+import AnimatedBg from "../subcomponentes/AnimatedBg.astro";
+import HomeSlider from "../subcomponentes/HomeSlider.astro";
+import TextCarousel from "../subcomponentes/TextCarousel.astro";
+import { AiFillInstagram } from "react-icons/ai";
+import { FaFacebookSquare } from "react-icons/fa";
+import { ImSoundcloud2 } from "react-icons/im";
+import { FaSpotify } from "react-icons/fa";
+import Starshine from "../subcomponentes/Starshine.astro";
+const { translations } = Astro.props;
+
+// Array de logos para el carrusel
+const sponsorLogos = [
+  {
+    name: "Parrots Group",
+    url: "https://www.parrots-sitges.com/",
+    imgSrc: "/assets/img/logos/parrots-group.png",
+    alt: "Parrots Group logo"
+  },
+  {
+    name: "Sitges Pride",
+    url: "https://sitgespride.com/",
+    imgSrc: "/assets/img/logos/Sitges-Pride-Logo-2025-BLUE.png",
+    alt: "Sitges Pride logo"
+  },
+  {
+    name: "Bears Week Sitges",
+    url: "https://bearssitges.org/bears-sitges-week/",
+    imgSrc: "/assets/img/logos/LOGO-BEARS-WEEK-mini.png",
+    alt: "Bears Week Sitges logo"
+  },
+  {
+    name: "IBC Palm Springs",
+    url: "https://bearssitges.org/bears-sitges-week/",
+    imgSrc: "/assets/img/logos/ibc+blue+logo+mk.webp",
+    alt: "IBC Palm Springs logo"
+  },
+  {
+    name: "Bears Events",
+    url: "https://www.bearsevents.com/",
+    imgSrc: "/assets/img/logos/Bear-Events-Logo-2-300x95.png",
+    alt: "Bears Events logo"
+  }
+];
+---
+
+<!--Home-->
+<!--Section-->
+<section id="contact" class="relative w-screen h-[100dvh]  flex items-center justify-center m-0 p-0 overflow-hidden " data-anchor="Contact" data-brightness="dark" >
+
+    <AnimatedBg class="absolute top-0 left-0 w-full h-full" style="z-index: 5;" /> 
+     
+
+    <!-- Capa de background con zoom separada -->
+    <div class="contactBgLayer absolute inset-0 w-full h-full z-10"></div>
+    
+    <div id="contactBg" class="contactContent w-screen h-screen  mx-auto z-20 overflow-hidden">
+      <TextCarousel translations={translations} class="textCarousel w-screen h-screen" />
+    </div>
+
+    <!-- Social RRSS con iconos grandes responsive para ContactSection -->
+    <div id="contact-social" class="contact-social-icons mb-8 flex gap-4 lg:gap-6 justify-center items-center" style="z-index: 999 !important;">
+      <!-- Facebook -->
+      <a href="https://www.facebook.com/fernandocardonatoro" target="_blank" class="text-white hover:scale-125 transition-all duration-300 ease-in-out" aria-label="Facebook">
+        <FaFacebookSquare className="contact-social-icon contact-social-facebook" />
+      </a>
+
+      <!-- Instagram -->
+      <a href="https://www.instagram.com/mrchiloveyou/" target="_blank" class="text-white hover:scale-125 transition-all duration-300 ease-in-out" aria-label="Instagram">
+        <AiFillInstagram className="contact-social-icon contact-social-instagram" />
+      </a>
+
+      <!-- SoundCloud -->
+      <a href="#" target="_blank" class="text-white hover:scale-125 transition-all duration-300 ease-in-out" aria-label="SoundCloud">
+        <ImSoundcloud2 className="contact-social-icon contact-social-soundcloud" />
+      </a>
+
+      <!-- Spotify -->
+      <a href="#" target="_blank" class="text-white hover:scale-125 transition-all duration-300 ease-in-out" aria-label="Spotify">
+        <FaSpotify className="contact-social-icon contact-social-spotify" />
+      </a>
+    
+    </div>
+    <div id="logos-sponsors" class="w-screen contact-sponsors-logos-cont mb-8 overflow-hidden" style="z-index: 999 !important;   width: 100vw; left: 0; transform: none;">
+      <div class="logos-marquee-box" style="width: 100vw; left: 0;">
+        <div class="logos-marquee">
+          {/* Primera serie de logos */}
+          {sponsorLogos.map((logo) => (
+            <a href={logo.url} target="_blank" class="hover:scale-105 transition-all duration-300 ease-in-out mx-10" aria-label={logo.name}>
+              <img src={logo.imgSrc} alt={logo.alt} class="contact-sponsor-logo" />
+            </a>
+          ))}
+          
+          {/* Segunda serie de logos para la animación continua */}
+          {sponsorLogos.map((logo) => (
+            <a href={logo.url} target="_blank" class="hover:scale-105 transition-all duration-300 ease-in-out mx-10" aria-label={logo.name}>
+              <img src={logo.imgSrc} alt={logo.alt} class="contact-sponsor-logo" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+</section>
+
+<style>
+  
+  .contactContent {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: visible;
+    z-index: 10;
+  }
+  
+  .contactBgLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/assets/img/bg/mapa-mundi.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transform: scale(1.8);
+    transform-origin: center;
+    z-index: 10;
+  }
+  .textCarousel {
+    height: 100% !important;
+    width: 100% !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    z-index: 999 !important;
+    pointer-events: auto;
+  }
+
+  .contact-social-icons {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    z-index: 999 !important;
+  }
+  .contact-sponsors-logos-cont {
+    width: 100vw !important;
+    position: absolute;
+    bottom: 10%;
+    left: 0 !important;
+    transform: none !important;
+    z-index: 999 !important;
+    /* border: 1px solid white; */
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .contact-sponsor-logo {
+    width: auto;
+    height: 200px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  
+  /* Estilos para la animación de logos */
+  .logos-marquee-box {
+    height: fit-content;
+    width: 100vw !important;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border: none;
+    margin: 0 !important;
+    padding: 0 !important;
+    left: 0 !important;
+
+  }
+  
+  .logos-marquee {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;gap: 20px;
+    flex-shrink: 0;
+    padding: 0;
+    margin: 0;
+    width: max-content;
+    transform: translateX(0);
+    animation: logos-scroll 30s linear infinite;
+  }
+  
+  .logos-marquee a {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Pausar animación al hacer hover en cualquier logo */
+  .logos-marquee:hover {
+    animation-play-state: paused;
+  }
+  
+  @keyframes logos-scroll {
+    0% { transform: translate3d(0%, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+  
+  @media (min-width: 768px) { 
+    .contact-sponsors-logos-cont {
+      bottom: 10%;
+    }
+    .contact-sponsor-logo {
+      height: 120px;
+    }
+  }
+  
+  @media (max-width: 767px) { 
+    .contact-sponsor-logo {
+      height: 150px;
+    }
+  }
+  
+  @media (max-width: 640px) { 
+    .contact-sponsors-logos-cont {
+      width: 100vw;
+      bottom: 15%;
+    }
+    .contact-sponsor-logo {
+      height: 120px;
+    }
+  }
+  
+  @media (max-width: 450px) { 
+    .contact-sponsors-logos-cont {
+      width: 100vw;
+      bottom: 10%;
+    }
+    .contact-sponsor-logo {
+      height: 150px;
+    }
+  }
+  
+  /* Estilos para Social RRSS con iconos grandes responsive para ContactSection */
+.contact-social-icons {
+    z-index: 100;
+}
+
+/* Tamaños base para iconos de ContactSection */
+.contact-social-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 70px;
+}
+
+.contact-social-instagram {
+    width: 80px;
+    height: 80px;
+    font-size: 80px;
+}
+
+.contact-social-soundcloud {
+    width: 62px;
+    height: 62px;
+    font-size: 62px;
+}
+
+.contact-social-spotify {
+    width: 65px;
+    height: 65px;
+    font-size: 65px;
+}
+
+/* Responsive breakpoints para ContactSection */
+
+@media (min-widlos logos el doble de grandes y el contenedor ha de ser fullwidth 
+th: 640px) { /* sm */
+    .contact-social-icons {
+      top: 25%;
+    }
+    .contact-social-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 65px;
+    }
+    
+    .contact-social-instagram {
+        width: 80px;
+        height: 80px;
+        font-size: 80px;
+    }
+    
+    .contact-social-soundcloud {
+        width: 55px;
+        height: 55px;
+        font-size: 55px;
+    }
+    .contact-social-spotify {
+        width: 60px;
+        height: 60px;
+        font-size: 60px;
+    }
+}
+
+@media (min-width: 1280px) { /* xl */
+  .contact-social-icons {
+    top: 24%;
+  }
+    .contact-social-icon {
+        width: 75px;
+        height: 75px;
+        font-size: 75px;
+    }
+    
+    .contact-social-instagram {
+        width: 90px;
+        height: 90px;
+        font-size: 90px;
+    }
+    
+    .contact-social-soundcloud {
+        width: 65px;
+        height: 65px;
+        font-size: 65px;
+    }
+    .contact-social-spotify {
+        width: 70px;
+        height: 70px;
+        font-size: 70px;
+    }
+}
+
+@media (min-width: 1536px) { /* 2xl */
+  .contact-social-icons {
+    top: 23%;
+  }
+    .contact-social-icon {
+        width: 90px;
+        height: 90px;
+        font-size: 90px;
+    }
+    
+    .contact-social-instagram {
+        width: 100px;
+        height: 100px;
+        font-size: 100px;
+    }
+    
+    .contact-social-soundcloud,
+    .contact-social-spotify {
+        width: 75px;
+        height: 75px;
+        font-size: 75px;
+    }
+}
+@media (min-height: 800px) { /* 2xl */
+  .contact-social-icons {
+    top: 23% !important;
+  }
+}
+
+@media (max-height: 800px) { /* 2xl */
+  .contact-social-icons {
+    top: 18% !important;
+  }
+
+}
+
+/* @media (max-width: 650px) { 
+  .contact-sponsors-logos-cont {
+    width: 60dvw;
+    bottom: 5%;
+  }
+  .contact-sponsor-logo {
+    width: auto;
+     height: 60px;
+  }
+} */
+
+@media (max-width: 450px) { 
+  .contact-sponsors-logos-cont {
+    width: 60dvw;
+    bottom: 10%;
+  }
+  .contact-sponsor-logo {
+    width: auto;
+     height: 100px;
+  }
+}
+</style>
+
+<script>
+  // @ts-nocheck
+  import { gsap } from 'gsap';
+  
+  // Función para detectar cuando Contact está activo usando hash URL
+  function initializeContactZoomAnimation() {
+    // console.log('Initializing Contact section zoom animation with hash detection');
+    
+    const contactBgLayer = document.querySelector('.contactBgLayer');
+    if (!contactBgLayer) {
+      console.error('Contact background layer element not found!');
+      return;
+    }
+    
+    // Establecer estado inicial del background
+    gsap.set('.contactBgLayer', { scale: 1.8 });
+    // console.log('Contact background layer set to initial scale: 1.8');
+    
+    function checkIfContactSectionActive() {
+      const currentHash = window.location.hash;
+      // console.log('Contact - Checking hash:', currentHash);
+      
+      // Verificar si el hash actual es #contact
+      const isContactActive = currentHash === '#contact';
+      // console.log('Is Contact section active:', isContactActive);
+      
+      if (isContactActive) {
+        // console.log('Contact section is now active, starting zoom in animation');
+        
+        // Ejecutar animación de zoom in en contactBgLayer
+        gsap.to('.contactBgLayer', {
+          scale: 1,
+          duration: 5,
+          ease: 'power2.out'
+        });
+      } else {
+        // Reset al estado inicial cuando no está activo
+        // console.log('Contact section is not active, resetting to zoom out state');
+        gsap.to('.contactBgLayer', {
+          scale: 1.8,
+          duration: 2,
+          ease: 'power2.out'
+        });
+      }
+    }
+    
+    // Verificar inmediatamente si ya estamos en contact
+    checkIfContactSectionActive();
+    
+    // Escuchar cambios en el hash URL
+    function handleHashChange() {
+      // console.log('Contact - Hash changed to:', window.location.hash);
+      checkIfContactSectionActive();
+    }
+    
+    // Añadir event listener para hashchange
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // También escuchar cambios en el DOM para detectar cuando se actualiza el hash programáticamente
+    const observer = new MutationObserver(() => {
+      checkIfContactSectionActive();
+    });
+    
+    // Observar cambios en el body class que indica la section activa
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    // console.log('Contact hash change listeners configured');
+  }
+  
+  // Inicializar cuando la página esté completamente cargada
+  function initContactAnimation() {
+    const contactBgLayer = document.querySelector('.contactBgLayer');
+    if (contactBgLayer) {
+      // console.log('Contact background layer found, initializing animation');
+      initializeContactZoomAnimation();
+    } else {
+      // console.log('Contact background layer not found, retrying in 100ms');
+      setTimeout(initContactAnimation, 100);
+    }
+  }
+  
+  // Intentar inicializar cuando el DOM esté listo
+  document.addEventListener('DOMContentLoaded', initContactAnimation);
+  
+  // También intentar cuando la página esté completamente cargada
+  window.addEventListener('load', initContactAnimation);
+  
+  // Fallback: intentar después de un delay
+  setTimeout(initContactAnimation, 500);
+</script>
